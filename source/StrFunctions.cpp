@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "..\include\StrFunctions.h"
+#include "../include/StrFunctions.h"
 
 int mystrcmp(char* ptr1, char* ptr2)
 {
