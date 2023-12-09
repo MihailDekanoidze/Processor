@@ -20,17 +20,17 @@ size_t StringCount(char* buffer, size_t charread)
 }
 
 
-struct TextInfo Lines(TextInfo text)
+struct TextInfo* Lines(TextInfo* text)
 {
-    struct TextInfo linesinfo = {};
+    struct TextInfo* linesinfo = (struct TextInfo*) calloc(1, sizeof(struct TextInfo));
 
-    char* buffer = (char*)text.buffer;
+    char* buffer = (char*)text->buffer;
 
-    size_t charread = text.elemcount;
+    size_t charread = text->elemcount;
 
     size_t stringcount = StringCount(buffer, charread) + 1;
 
-    printf("stringcount  = %zu\n", stringcount);
+    //printf("stringcount  = %zu\n", stringcount);
 
     struct StringInfo* lines = (struct StringInfo*) calloc(stringcount, sizeof(struct StringInfo));
     size_t ptrlines = 1;
@@ -60,10 +60,10 @@ struct TextInfo Lines(TextInfo text)
     }*/
 
 
-    linesinfo.buffer = (void*)lines;
-    linesinfo.elemcount = stringcount;
+    linesinfo->buffer = (void*)lines;
+    linesinfo->elemcount = stringcount;
 
-    if (linesinfo.buffer == NULL)
+    if (linesinfo->buffer == NULL)
     {
         printf("linesinfo.buffer = NULL\n");
     }

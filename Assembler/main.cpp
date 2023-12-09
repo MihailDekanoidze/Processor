@@ -11,38 +11,41 @@ int main()
 {
     FILE* AsmLog = fopen("AssemblerV3.log", "w"); 
 
-    struct TextInfo CommandLines = {};
-
     FILE* source_code = fopen("../Input/Commands.txt", "r");
     if (source_code == NULL)
     {
         return ASM_ERROR_OPEN_FILE;
     }
 
-    struct TextInfo CommandInfo = {};
+    struct TextInfo* CommandInfo = InputText(source_code);
+
+    if (!CommandInfo)
+    {
+        printf("CommandInfo is NULL\n");
+    }
 
     //printf("before InputText\n");
-
-    CommandInfo = InputText(CommandInfo, source_code);
 
     //printf("After InputText\n");
 
     fclose(source_code);
 
-    struct TextInfo ArrLines = Lines(CommandInfo);
+    struct TextInfo* ArrLines = Lines(CommandInfo);
 
-    printf("16\n");
+    //printf("16\n");
 
-    if (ArrLines.buffer == NULL)
+    if (ArrLines->buffer == NULL)
     {
         printf("ArrLines ptr = NULL\n");
     }
 
-    CommandLines.buffer = ArrLines.buffer;
-    CommandLines.elemcount = ArrLines.elemcount;
+    struct TextInfo CommandLines = {    
+                                    ArrLines->buffer,
+                                    ArrLines->elemcount
+                                    };
 
 
-    printf("21\n");
+    //printf("21\n");
 
     int* tempt = (int*) calloc(CommandLines.elemcount * ASM_N_OF_COMMANDS, sizeof(int));
 
@@ -230,7 +233,7 @@ int main()
 
 
 
-    FILE* ArrCode = fopen("../Output/AssemblerArrCode.txt", "w");
+    FILE* ArrCode = fopen("../Output/AssemblerArrCode", "wb");
     if (ArrCode == NULL)
     {
         return ASM_ERROR_OPEN_FILE;
@@ -247,50 +250,20 @@ int main()
 
     fprintf(AsmLog, "\n");
 
-    for (size_t j = 0; j < ip; j++)
-    {
-
-    }
+    fwrite(arr_code, sizeof(int), CommandLines.elemcount * ASM_N_OF_COMMANDS, ArrCode);
 
 
-    for (size_t j = 0; j < ip; j++)
-    {
-        switch (arr_code[j])
-        {
-            case PUSH:
-            case RPUSH:
-            case JA_COMMAND:
-            case JE_COMMAND:
-            case JB_COMMAND:
-            case JMP_COMMAND:
-            case JNA_COMMAND:
-            case JNB_COMMAND:
-            case JNE_COMMAND:
-            case POP:
-            {
-                    //printf("case: PUSH\n");
+    free(CommandInfo->buffer);
 
-                    fprintf(ArrCode, "%d %d\n", arr_code[j], arr_code[j + 1]);
-                    j++;
-
-                    //printf("tempt = %d\n", tempt);
-
-                    break;
-            }
-            default:
-            {
-                    fprintf(ArrCode, "%d\n", arr_code[j]);
-
-                    break;
-            }
-        }
-    }
-
-    free(CommandInfo.buffer);
+    free(CommandInfo);
 
     free(arr_code);
 
+    free(ArrLines);
+
     free(CommandLines.buffer);
+    
+    //free();
 
 
     fclose(ArrCode);

@@ -1,6 +1,8 @@
 #ifndef DISASSEMBLER_V3_H
 #define DISASSEMBLER_V3_H
 
+#include "InputText.h"
+
 enum CommandID
 {
     PUSH = 1,

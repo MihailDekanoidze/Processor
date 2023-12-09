@@ -5,12 +5,15 @@
 
 int main()
 {
-    const char ASM_FILE_NAME[] = "../Output/AssemblerArrCode.txt";
+    const char ASM_FILE_NAME[] = "../Output/AssemblerArrCode";
 
-    FILE* code = fopen(ASM_FILE_NAME, "r"); // file name to constant
+    FILE* code = fopen(ASM_FILE_NAME, "rb"); // file name to constant
+
+    //printf("ferror is %d\n", ferror(code));
 
     if (code == NULL)
     {
+        printf("NULL");
         return SPU_ERROR_OPEN_FILE;
     }
     printf("code = %p\n", code);
@@ -19,33 +22,38 @@ int main()
 
     size_t size_code = 0;
 
-    while(symbol_code != EOF)
-    {
-        fscanf(code, "%d", &symbol_code);
-        printf("symbol_code = %d\n", symbol_code);
-        size_code++;
-    }
-
-    rewind(code);
-
     printf("size_code = %zu\n", size_code);
 
-    int* asm_code =  (int*) calloc(size_code, sizeof(int));
+    size_code = fsize(code) / sizeof(int);
 
-    for (size_t fcommand = 0; fcommand < size_code; fcommand++)
+    printf("fsize: size_code = %zu\n", size_code);
+
+    int* asm_code = (int*) calloc(size_code, sizeof(int));
+
+    int fread_count = fread(asm_code, sizeof(int), size_code, code);
+
+    //printf("fread_count : %d\n", fread_count);
+
+    if (!fread_count)
     {
-        int buffer = 0;
-        if (fscanf(code, "%d", &buffer) != 1)
-        {
-            return SPU_ERROR_BYTE_CODE;
-        }
-        printf("buffer = %d \n", buffer);
-        asm_code[fcommand] = buffer;
+        printf("EMPTY FILE!\n");
+        return SPU_ERROR_OPEN_FILE;
     }
 
-    printf("\n");
+    /*for (size_t i = 0; i < size_code; i++)
+    {
+        int symbol = 1;
+        fscanf(code, "%d", &symbol);
+        printf("symbol is %d\n", symbol);
+        printf("command is %d\n", asm_code[i]);
+    }
 
-    fclose(code);
+
+    printf("ferror is %d\n", ferror(code));
+
+    printf("feof is : %d\n", feof(code));*/
+
+
 
     int curr_command = 0;
 
@@ -384,5 +392,6 @@ int main()
         printf("StackSize = %zu\n\n", StackSize(stk));*/
 
     }
+
     free(asm_code);
 }

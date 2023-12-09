@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include "Stack.h"
+#include "InputText.h"
 
 
 const int base_capacity = 5; 

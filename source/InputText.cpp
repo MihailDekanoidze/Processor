@@ -12,11 +12,13 @@ size_t fsize(FILE* file)
     fseek(file, 0, SEEK_END);
     end = ftell(file);
 
+    rewind(file);
+
     return end - begin;
 }
 
 
-struct TextInfo InputText(TextInfo text, FILE* file)
+struct TextInfo* InputText(FILE* file)
 {
     size_t size = 0;
 
@@ -39,8 +41,9 @@ struct TextInfo InputText(TextInfo text, FILE* file)
 
     buffer[elemcount] = '\0';
 
-    text.buffer = buffer;
-    text.elemcount = elemcount;
+    struct TextInfo* text = (struct TextInfo*) calloc(1, sizeof(struct TextInfo));
+    text->buffer = buffer;
+    text->elemcount = elemcount;
 
     //printf("char_read = %d\n", elemcount);
     //charprint(text);

@@ -84,7 +84,7 @@ void StackPop(struct Stack* st, elem_t* value)
 
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    /*if (st->size + 1 < st->capacity / 2)
+    if (st->size + 1 < st->capacity / 2 && st->size > CAPACITY_REDUCE_LEVEL)
     {
         elem_t* temp_address = (elem_t*)realloc(st->ptr, st->capacity / 2 * sizeof(elem_t));
         if (temp_address == NULL)
@@ -95,7 +95,7 @@ void StackPop(struct Stack* st, elem_t* value)
         }
         st->ptr = temp_address;
         st->capacity /= 2;
-    }*/
+    }
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }

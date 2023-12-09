@@ -22,9 +22,13 @@ undefined,unreachable,vla-bound,vptr
 
 all: Disassembler
 	
-Disassembler: Disasmreg.o main.o
+Disassembler: clean InputText.o Disasmreg.o main.o
 		
-		g++ Disasmreg.o main.o -o DisassemblerV3 	$(FLAGS)
+		g++ InputText.o Disasmreg.o main.o -o DisassemblerV3 	$(FLAGS)
+
+InputText.o:
+
+		g++ ../source/InputText.cpp -c -o InputText.o $(FLAGS) 
 
 Disasmreg.o:
 

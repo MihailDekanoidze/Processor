@@ -22,7 +22,7 @@ undefined,unreachable,vla-bound,vptr
 
 all: Assembler
 	
-Assembler: StrFunctions.o InputText.o ProcessingText.o  Registers.o main.o
+Assembler: clean StrFunctions.o InputText.o ProcessingText.o  Registers.o main.o
 		
 		g++ StrFunctions.o InputText.o ProcessingText.o  Registers.o main.o -o AssemblerV3 	$(FLAGS)
 

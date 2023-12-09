@@ -8,7 +8,7 @@ struct StringInfo {
 
 size_t StringCount(char* buffer, size_t charread);
 
-struct TextInfo Lines(TextInfo);
+struct TextInfo* Lines(TextInfo*);
 
 bool isstr(char* begin);
 
