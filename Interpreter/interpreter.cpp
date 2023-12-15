@@ -22,11 +22,11 @@ int main()
     char* buffer = (char*) calloc(commandsize, sizeof(char));
 
     char push[] = "PUSH";
-    char add[] = "ADD";
-    char sub[] = "SUB";
-    char div[] = "DIV";
-    char out[] = "OUT";
-    char hlt[] = "HLT";
+    char add[]  = "ADD";
+    char sub[]  = "SUB";     // <------------ copypaste. Put to common.h
+    char div[]  = "DIV";
+    char out[]  = "OUT";  
+    char hlt[]  = "HLT";
 
     while (mystrcmp(buffer, hlt) != 0)
     {
@@ -45,8 +45,8 @@ int main()
             int tempt1 = 0;
             int tempt2 = 0;
 
-            StackPop(&st, &tempt1);
-            StackPop(&st, &tempt2);
+            StackPop (&st, &tempt1);
+            StackPop (&st, &tempt2);
             StackPush(&st, tempt1 + tempt2);
         }
         else if(mystrcmp(buffer, sub) == 0)
@@ -54,8 +54,8 @@ int main()
             int tempt1 = 0;
             int tempt2 = 0;
 
-            StackPop(&st, &tempt1);
-            StackPop(&st, &tempt2);
+            StackPop (&st, &tempt1);
+            StackPop (&st, &tempt2);
             StackPush(&st, tempt2 - tempt1);
         }
         else if(mystrcmp(buffer, div) == 0)
@@ -63,8 +63,8 @@ int main()
             int tempt1 = 0;
             int tempt2 = 0;
 
-            StackPop(&st, &tempt1);
-            StackPop(&st, &tempt2);
+            StackPop (&st, &tempt1);
+            StackPop (&st, &tempt2); // add check for zero
             StackPush(&st, tempt2 / tempt1);
         }
         else if(mystrcmp(buffer, out) == 0)

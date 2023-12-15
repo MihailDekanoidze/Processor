@@ -1,0 +1,72 @@
+AssmLoglines[0 ] = PUSH 1
+AssmLoglines[1 ] = POP AX
+AssmLoglines[2 ] = PUSH AX
+AssmLoglines[3 ] = PUSH AX
+AssmLoglines[4 ] = MUL
+AssmLoglines[5 ] = OUT
+AssmLoglines[6 ] = PUSH AX
+AssmLoglines[7 ] = PUSH 1
+AssmLoglines[8 ] = ADD
+AssmLoglines[9 ] = POP AX
+AssmLoglines[10] = PUSH AX
+AssmLoglines[11] = PUSH 10
+AssmLoglines[12] = JNB 4
+AssmLoglines[13] = HLT
+
+line = PUSH 1
+arg = 1
+line = POP AX
+reg_sscaned = AX
+line = PUSH AX
+reg_sscaned = AX
+reg_id of AX = 1
+arg = 0
+line = PUSH AX
+reg_sscaned = AX
+reg_id of AX = 1
+arg = 0
+line = MUL
+line = OUT
+line = PUSH AX
+reg_sscaned = AX
+reg_id of AX = 1
+arg = 0
+line = PUSH 1
+arg = 1
+line = ADD
+line = POP AX
+reg_sscaned = AX
+line = PUSH AX
+reg_sscaned = AX
+reg_id of AX = 1
+arg = 0
+line = PUSH 10
+arg = 10
+line = JNB 4
+line = HLT
+ip = 24
+1  :[0]
+1  :[1]
+32 :[2]
+1  :[3]
+17 :[4]
+1  :[5]
+17 :[6]
+1  :[7]
+7  :[8]
+5  :[9]
+17 :[10]
+1  :[11]
+1  :[12]
+1  :[13]
+2  :[14]
+32 :[15]
+1  :[16]
+17 :[17]
+1  :[18]
+1  :[19]
+10 :[20]
+35 :[21]
+4  :[22]
+-1 :[23]
+
