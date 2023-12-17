@@ -4,7 +4,6 @@
 
 #include "../include/Registers.h"
 #include "../include/AssemblerV3.h"
-//#include "../include/FileProcessing.h"
 
 
 int main()
@@ -21,22 +20,16 @@ int main()
 
     if (!CommandInfo)
     {
-        printf("CommandInfo is NULL\n");
+        return ASM_ERROR_COMMAND_EMPTY;
     }
-
-    //printf("before InputText\n");
-
-    //printf("After InputText\n");
 
     fclose(source_code);
 
     struct TextInfo* ArrLines = Lines(CommandInfo);
 
-    //printf("16\n");
-
     if (ArrLines->buffer == NULL)
     {
-        printf("ArrLines ptr = NULL\n");
+        return ASM_ERROR_COMMAND_EMPTY;
     }
 
     struct TextInfo CommandLines = {    
@@ -45,9 +38,9 @@ int main()
                                     };
 
 
-    //printf("21\n");
+    size_t arr_size = CommandLines.elemcount * ASM_N_OF_COMMANDS;
 
-    int* tempt = (int*) calloc(CommandLines.elemcount * ASM_N_OF_COMMANDS, sizeof(int));
+    int* tempt = (int*) calloc(arr_size, sizeof(int));
 
     if (tempt == NULL) return ASM_ERROR_CALLOC;
 
@@ -62,19 +55,11 @@ int main()
     {
         fprintf(AsmLog, "AssmLoglines[%-2zu] = %s\n", i, ((StringInfo*)(CommandLines.buffer))[i].address);
     }
-    //fprintf...
+
     fprintf(AsmLog, "\n");
 
     for (curr_line = 0; curr_line < CommandLines.elemcount; curr_line++)
     {
-
-
-        //fprintf(AsmLog, "buffer = %s\n", buffer);
-        //fprintf(AsmLog, "mystrcmp(buffer, push) = %d\n", mystrcmp(buffer, push));
-        //printf(AsmLog, "mystrcmp(buffer, add) = %d\n", mystrcmp(buffer, add));
-        //print_str(buffer);
-        //printf("strncmp(line, push, push_size) = %d\n", strncmp(line, push, push_size));
-
         char* line = ((StringInfo*)(CommandLines.buffer))[curr_line].address;
 
         fprintf(AsmLog, "line = %s\n", line);
@@ -85,10 +70,11 @@ int main()
 
             if (sscanf(line + push_size, "%d", &arg) == 0)
             {
-                arr_code[ip] = RPUSH;
-                ip++;
+                arr_code[ip++] = RPUSH;
+
                 sscanf(line + push_size, "%s", reg);
                 fprintf(AsmLog, "reg_sscaned = %s\n", reg);
+
                 int reg_id = AsmGetRegId(reg[0]);
                 fprintf(AsmLog, "reg_id of %s = %d\n", reg, reg_id);
                 switch(reg_id)
@@ -98,7 +84,7 @@ int main()
                     case 3:
                     case 4:
                         {
-                            arr_code[ip] = reg_id;
+                            arr_code[ip++] = reg_id;
                             break;
                         }
                     default:
@@ -106,67 +92,47 @@ int main()
                             return ASM_ERROR_PUSH_REG;
                         }
                 }
-                ip++;
             }
             else
             {
                 arr_code[ip] = PUSH;
-                ip++;
 
-                arr_code[ip] = arg;
-                ip++;
+                arr_code[ip++] = arg;
             }
 
             fprintf(AsmLog, "arg = %d\n", arg);
         }
         else if (strncmp(line, add, add_size) == 0)
         {
-            arr_code[ip] = ADD;
-            ip++;
+            arr_code[ip++] = ADD;
         }
         else if(strncmp(line, sub, sub_size) == 0)
         {
-            arr_code[ip] = SUB;
-            ip++;
+            arr_code[ip++] = SUB;
         }
         else if(strncmp(line, div, div_size) == 0)
         {
-            arr_code[ip] = DIV;
-            ip++;
+            arr_code[ip++] = DIV;
         }
         else if(strncmp(line, out, out_size) == 0)
         {
-            arr_code[ip] = OUT;
-            ip++;
+            arr_code[ip++] = OUT;
         }
         else if(strncmp(line, hlt, hlt_size) == 0)
         {
-            arr_code[ip] = HLT;
-            ip++;
+            arr_code[ip++] = HLT;
         }
         else if(strncmp(line, in, in_size) == 0)
         {
-            arr_code[ip] = IN;
-            ip++;
+            arr_code[ip++] = IN;
         }
         else if(strncmp(line, mul, mul_size) == 0)
         {
-            arr_code[ip] = MUL;
-            ip++;
+            arr_code[ip++] = MUL;
         }
         else if(strncmp(line, pop, pop_size) == 0)
         {
-            //printf("POP = %d\n", POP);
-
-            //printf("arr_code[%d] = %d\n", ip, arr_code[ip]);
-
-            arr_code[ip] = POP;
-
-            //printf("arr_code[%d] = %d\n", ip, arr_code[ip]);
-
-            ip++;
-
-            //printf("arr_code[%d] = %d\n", ip, arr_code[ip]);
+            arr_code[ip++] = POP;
 
             char reg[50] = {};
 
@@ -174,11 +140,9 @@ int main()
 
             fprintf(AsmLog, "reg_sscaned = %s\n", reg);
 
-            int reg_id = AsmGetRegId(reg[0]); // в функцию AsmGetRegId(char* ...)
+            int reg_id = AsmGetRegId(reg[0]); 
 
-            // В функцию - AsmPutRegToBuffer(buffer, reg_id)
-            AsmPutRegToBuffer(&arr_code[ip], reg_id);
-            ip++;
+            AsmPutRegToBuffer(&arr_code[ip++], reg_id);
         }
         else if(strncmp(line, jmp, jmp_size) == 0)
         {
@@ -229,6 +193,40 @@ int main()
             sscanf(line + jne_size, "%d", &arg);
             arr_code[ip++] = arg;
         }
+        else if(strncmp(line, call, jne_size) == 0)
+        {
+            int arg = 0;
+            arr_code[ip++] = JNE_COMMAND;
+            sscanf(line + jne_size, "%d", &arg);
+            arr_code[ip++] = arg;
+        }
+        else if(strncmp(line, org, org_size) == 0)
+        {
+            int arg = 0;
+
+            sscanf(line + org_size, "%d", &arg);
+
+            arr_size += arg;
+
+            int* tempt = (int*)realloc(arr_code, sizeof(tempt[0])*(arr_size + 2));
+
+            if (tempt == NULL)
+            {
+                return ASM_ERROR_CALLOC;
+            }
+
+            arr_code = tempt;
+
+            while (ip != arg)
+            {
+                arr_code[++ip] = 0;
+            }
+
+        }
+        else if(strncmp(line, ret, ret_size) == 0)
+        {
+            arr_code[ip++] = RET;
+        }
     }
 
 
@@ -250,7 +248,7 @@ int main()
 
     fprintf(AsmLog, "\n");
 
-    fwrite(arr_code, sizeof(int), CommandLines.elemcount * ASM_N_OF_COMMANDS, ArrCode);
+    fwrite(arr_code, sizeof(int), arr_size, ArrCode);
 
 
     free(CommandInfo->buffer);
@@ -262,8 +260,6 @@ int main()
     free(ArrLines);
 
     free(CommandLines.buffer);
-    
-    //free();
 
 
     fclose(ArrCode);
