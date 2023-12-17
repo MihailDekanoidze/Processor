@@ -66,7 +66,7 @@ int main()
         if (strncmp(line, push, push_size) == 0)
         {
             int arg = 0;
-            char reg[50] ={}; // ?????????? buffer -> 50 ax\0<----- bx
+            char reg[50] ={}; 
 
             if (sscanf(line + push_size, "%d", &arg) == 0)
             {
@@ -95,7 +95,7 @@ int main()
             }
             else
             {
-                arr_code[ip] = PUSH;
+                arr_code[ip++] = PUSH;
 
                 arr_code[ip++] = arg;
             }
@@ -193,11 +193,11 @@ int main()
             sscanf(line + jne_size, "%d", &arg);
             arr_code[ip++] = arg;
         }
-        else if(strncmp(line, call, jne_size) == 0)
+        else if(strncmp(line, call, call_size) == 0)
         {
             int arg = 0;
-            arr_code[ip++] = JNE_COMMAND;
-            sscanf(line + jne_size, "%d", &arg);
+            arr_code[ip++] = CALL;
+            sscanf(line + call_size, "%d", &arg);
             arr_code[ip++] = arg;
         }
         else if(strncmp(line, org, org_size) == 0)
@@ -228,6 +228,8 @@ int main()
             arr_code[ip++] = RET;
         }
     }
+
+    arr_size = ip;
 
 
 
