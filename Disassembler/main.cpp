@@ -5,7 +5,7 @@
 
 int main()
 {
-    FILE* code/*file*/ = fopen("../Output/AssemblerArrCode.txt", "r");
+    FILE* code = fopen("../Output/AssemblerArrCode", "rb");
         // use onegin, put both files to the buffer first!
 
     if (code == NULL)
@@ -17,213 +17,170 @@ int main()
 
     if (disasm  == NULL)
     {
-        //fclose(code); 89872139226 - тел если проблемы с кодом 
         return DISASM_ERROR_OPEN_FILE;
     }
 
-    int command = 0; // -100 
+    size_t size_code = fsize(code) / sizeof(int);
 
-    if (fscanf(code, "%d", &command) != 1)
+
+    int* asm_code = (int*) calloc(size_code, sizeof(int));
+
+    int fread_count = fread(asm_code, sizeof(int), size_code, code);
+
+    if (!fread_count)
     {
         return DISASM_ERROE_BYTE_CODE;
     }
 
-    while (command != HLT) // do while()
-    {
-    //printf("CMD: %d\n", command);
-    //printf("in while\n");
+    size_t ip = 0;
 
-    //printf("command = %d\n", command);
+    int command = 0;
+
+    for (size_t ip = 0; ip < size_code; ip++)
+    {
+        command = asm_code[ip];
 
         switch (command)
         {
+            case COMMENT:
+            {
+                break;
+            }
             case JMP_COMMAND:
             {
-                fprintf(disasm, "JMP "); // add "PUSH" as constant to common.h
+                fprintf(disasm, "%s ", jmp); 
 
-                int tempt = 0;
-
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
+                int tempt = asm_code[++ip];
+                
                 fprintf(disasm, "%d\n", tempt);
-
-                //printf("tempt = %d\n", tempt);
 
                 break;
             }
             case JA_COMMAND:
             {
-                fprintf(disasm, "JA "); // add "PUSH" as constant to common.h
+                fprintf(disasm, "%s ", ja); 
 
-                int tempt = 0;
+                int tempt = asm_code[++ip];
 
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
                 fprintf(disasm, "%d\n", tempt);
-
-                //printf("tempt = %d\n", tempt);
 
                 break;
             }
             case JB_COMMAND:
             {
-                fprintf(disasm, "JB "); // add "PUSH" as constant to common.h
+                fprintf(disasm, "%s ", jb); 
 
-                int tempt = 0;
+                int tempt = asm_code[++ip];
 
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
                 fprintf(disasm, "%d\n", tempt);
-
-                //printf("tempt = %d\n", tempt);
 
                 break;
             }
             case JE_COMMAND:
             {
-                fprintf(disasm, "JE "); // add "PUSH" as constant to common.h
+                fprintf(disasm, "%s ", je); 
 
-                int tempt = 0;
+                int tempt = asm_code[++ip];
 
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
                 fprintf(disasm, "%d\n", tempt);
-
-                //printf("tempt = %d\n", tempt);
 
                 break;
             }
             case JNA_COMMAND:
             {
-                fprintf(disasm, "JNA "); // add "PUSH" as constant to common.h
+                fprintf(disasm, "%s ", jna);
 
-                int tempt = 0;
-
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
+                int tempt = asm_code[++ip];
+                
                 fprintf(disasm, "%d\n", tempt);
-
-                //printf("tempt = %d\n", tempt);
 
                 break;
             }
             case JNB_COMMAND:
             {
-                fprintf(disasm, "JNB "); // add "PUSH" as constant to common.h
+                fprintf(disasm, "%s ", jnb); 
 
-                int tempt = 0;
-
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
+                int tempt = asm_code[++ip];
+                
                 fprintf(disasm, "%d\n", tempt);
-
-                //printf("tempt = %d\n", tempt);
 
                 break;
             }
             case JNE_COMMAND:   
             {
-                fprintf(disasm, "JNE "); // add "PUSH" as constant to common.h
+                fprintf(disasm, "%s ", jne); 
 
-                int tempt = 0;
-
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
+                int tempt = asm_code[++ip];
+                
                 fprintf(disasm, "%d\n", tempt);
-
-                //printf("tempt = %d\n", tempt);
 
                 break;
             }         
             case PUSH:
             {
-                fprintf(disasm, "PUSH "); // add "PUSH" as constant to common.h
+                fprintf(disasm, "%s ", push); 
 
-                int tempt = 0;
-
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
+                int tempt = asm_code[++ip];
+                
                 fprintf(disasm, "%d\n", tempt);
-
-                //printf("tempt = %d\n", tempt);
 
                 break;
             }
-            case ADD: fprintf(disasm, "ADD\n"); break;
-            case SUB: fprintf(disasm, "SUB\n"); break;
-            case DIV: fprintf(disasm, "DIV\n"); break;
-            case MUL: fprintf(disasm, "MUL\n"); break;
-            case OUT: fprintf(disasm, "OUT\n"); break;
-			case IN:  fprintf(disasm, "IN\n");  break;
+            case CALL:
+            {
+                fprintf(disasm, "%s ", call); 
+                
+                int tempt = asm_code[++ip];
+                
+                fprintf(disasm, "%d\n", tempt);
+
+                break;
+            }
+            case ADD: fprintf(disasm, "%s\n", add); break;
+            case SUB: fprintf(disasm, "%s\n", sub); break;
+            case DIV: fprintf(disasm, "%s\n", div); break;
+            case MUL: fprintf(disasm, "%s\n", mul); break;
+            case OUT: fprintf(disasm, "%s\n", out); break;
+			case IN:  fprintf(disasm, "%s\n", in);  break;
+            case HLT: fprintf(disasm, "%s\n", hlt);  break;
+            case RET: fprintf(disasm, "%s\n", ret); break;
             case RPUSH:
             {
-                    fprintf(disasm, "PUSH ");
+                    fprintf(disasm, "%s ", push);
 
-                    int tempt = 0;
+                    int tempt = asm_code[++ip];
 
-                    if (fscanf(code, "%d", &tempt) != 1)
-                    {
-                        return DISASM_ERROE_BYTE_CODE;
-                    }
-                    // функцию
                     if (DisasmPutRegtoFile(disasm, tempt) != 0)
                     {
                         return DISASM_ERROR_RPUSH_REG;
                     }
-
-                    //printf("tempt = %d\n", tempt);
 
                     break;
             }
 			case POP:
             {
-                    fprintf(disasm, "POP ");
+                    fprintf(disasm, "%s ", pop);
 
-                    int tempt = 0;
-
-                    if (fscanf(code, "%d", &tempt) != 1)
-                    {
-                        return DISASM_ERROE_BYTE_CODE;
-                    }
+                    int tempt = asm_code[++ip];
+                
                     if (DisasmPutRegtoFile(disasm, tempt) != 0)
                     {
                         return DISASM_ERROR_RPUSH_REG;
                     }
 
-                    //printf("tempt = %d\n", tempt);
-
                     break;
             }
             default:
             {
+                    printf("Command is %d\n", command);
                     printf("\n<<<UNEXPECTED EXIT>>>\n");
+
+                    return DISASM_ERROR_UNKNOWN_COMMAND;
 
                     break;
             }
         }
-        if (fscanf(code, "%d", &command) != 1)
-        {
-            return DISASM_ERROE_BYTE_CODE;
-        }
     }
-
-    fprintf(disasm, "HLT\n");
 
     fclose(disasm);
 
