@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include "StrFunctions.h"
-#include "../../Onegin/include/InputText.h"
-#include "../../Onegin/include/ProcessingText.h"
+#include "InputText.h"
+#include "ProcessingText.h"
 
 const size_t COMMAND_SIZE = 4;
 const size_t ASM_N_OF_COMMANDS = 2;

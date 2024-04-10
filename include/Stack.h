@@ -3,6 +3,8 @@
 
 typedef int elem_t;
 
+#define CAPACITY_REDUCE_LEVEL 50
+
 enum ERROR
 {
     NO_ERRORS = 0,

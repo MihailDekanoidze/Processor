@@ -21,17 +21,21 @@ undefined,unreachable,vla-bound,vptr
 
 all: SPU 
 
-SPU: Stack.o  main.o
+SPU: clean Stack.o InputText.o main.o
 
-	g++ Stack.o  main.o -o SPUV3 $(FLAGS)
+	g++ Stack.o  InputText.o main.o -o SPUV3 $(FLAGS)
 
 Stack.o:
 
 	g++ ../source/Stack.cpp -c -o Stack.o $(FLAGS)
 
+InputText.o:
+
+		g++ ../source/InputText.cpp -c -o InputText.o $(FLAGS) 
+
 main.o:
 
-	g++ main.cpp -c -o main.o
+	g++ main.cpp -c -o main.o $(FLAGS)
 
 clean:
 

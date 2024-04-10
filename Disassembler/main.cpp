@@ -5,7 +5,7 @@
 
 int main()
 {
-    FILE* code/*file*/ = fopen("../Output/AssemblerArrCode.txt", "r");
+    FILE* code = fopen("../Output/AssemblerArrCode", "rb");
         // use onegin, put both files to the buffer first!
 
     if (code == NULL)
@@ -21,12 +21,22 @@ int main()
         return DISASM_ERROR_OPEN_FILE;
     }
 
-    int command = 0; // -100 
+    size_t size_code = fsize(code) / sizeof(int);
 
-    if (fscanf(code, "%d", &command) != 1)
+    //printf("fsize: size_code = %zu\n", size_code);
+
+    int* asm_code = (int*) calloc(size_code, sizeof(int));
+
+    int fread_count = fread(asm_code, sizeof(int), size_code, code);
+
+    if (!fread_count)
     {
         return DISASM_ERROE_BYTE_CODE;
     }
+
+    size_t ip = 0;
+
+    int command = 0;
 
     while (command != HLT) // do while()
     {
@@ -35,18 +45,16 @@ int main()
 
     //printf("command = %d\n", command);
 
+        command = asm_code[ip];
+
         switch (command)
         {
             case JMP_COMMAND:
             {
                 fprintf(disasm, "JMP "); // add "PUSH" as constant to common.h
 
-                int tempt = 0;
-
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
+                int tempt = asm_code[++ip];
+                
                 fprintf(disasm, "%d\n", tempt);
 
                 //printf("tempt = %d\n", tempt);
@@ -57,12 +65,8 @@ int main()
             {
                 fprintf(disasm, "JA "); // add "PUSH" as constant to common.h
 
-                int tempt = 0;
+                int tempt = asm_code[++ip];
 
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
                 fprintf(disasm, "%d\n", tempt);
 
                 //printf("tempt = %d\n", tempt);
@@ -73,12 +77,8 @@ int main()
             {
                 fprintf(disasm, "JB "); // add "PUSH" as constant to common.h
 
-                int tempt = 0;
+                int tempt = asm_code[++ip];
 
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
                 fprintf(disasm, "%d\n", tempt);
 
                 //printf("tempt = %d\n", tempt);
@@ -89,12 +89,8 @@ int main()
             {
                 fprintf(disasm, "JE "); // add "PUSH" as constant to common.h
 
-                int tempt = 0;
+                int tempt = asm_code[++ip];
 
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
                 fprintf(disasm, "%d\n", tempt);
 
                 //printf("tempt = %d\n", tempt);
@@ -105,12 +101,8 @@ int main()
             {
                 fprintf(disasm, "JNA "); // add "PUSH" as constant to common.h
 
-                int tempt = 0;
-
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
+                int tempt = asm_code[++ip];
+                
                 fprintf(disasm, "%d\n", tempt);
 
                 //printf("tempt = %d\n", tempt);
@@ -121,12 +113,8 @@ int main()
             {
                 fprintf(disasm, "JNB "); // add "PUSH" as constant to common.h
 
-                int tempt = 0;
-
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
+                int tempt = asm_code[++ip];
+                
                 fprintf(disasm, "%d\n", tempt);
 
                 //printf("tempt = %d\n", tempt);
@@ -137,12 +125,8 @@ int main()
             {
                 fprintf(disasm, "JNE "); // add "PUSH" as constant to common.h
 
-                int tempt = 0;
-
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
+                int tempt = asm_code[++ip];
+                
                 fprintf(disasm, "%d\n", tempt);
 
                 //printf("tempt = %d\n", tempt);
@@ -153,12 +137,8 @@ int main()
             {
                 fprintf(disasm, "PUSH "); // add "PUSH" as constant to common.h
 
-                int tempt = 0;
-
-                if (fscanf(code, "%d", &tempt) != 1)
-                {
-                    return DISASM_ERROE_BYTE_CODE;
-                }
+                int tempt = asm_code[++ip];
+                
                 fprintf(disasm, "%d\n", tempt);
 
                 //printf("tempt = %d\n", tempt);
@@ -171,16 +151,13 @@ int main()
             case MUL: fprintf(disasm, "MUL\n"); break;
             case OUT: fprintf(disasm, "OUT\n"); break;
 			case IN:  fprintf(disasm, "IN\n");  break;
+            case HLT:  fprintf(disasm, "HLT\n");  break;
             case RPUSH:
             {
                     fprintf(disasm, "PUSH ");
 
-                    int tempt = 0;
-
-                    if (fscanf(code, "%d", &tempt) != 1)
-                    {
-                        return DISASM_ERROE_BYTE_CODE;
-                    }
+                    int tempt = asm_code[++ip];
+                
                     // функцию
                     if (DisasmPutRegtoFile(disasm, tempt) != 0)
                     {
@@ -195,12 +172,8 @@ int main()
             {
                     fprintf(disasm, "POP ");
 
-                    int tempt = 0;
-
-                    if (fscanf(code, "%d", &tempt) != 1)
-                    {
-                        return DISASM_ERROE_BYTE_CODE;
-                    }
+                    int tempt = asm_code[++ip];
+                
                     if (DisasmPutRegtoFile(disasm, tempt) != 0)
                     {
                         return DISASM_ERROR_RPUSH_REG;
@@ -212,18 +185,14 @@ int main()
             }
             default:
             {
+                    printf("Command is %d\n", command);
                     printf("\n<<<UNEXPECTED EXIT>>>\n");
 
                     break;
             }
         }
-        if (fscanf(code, "%d", &command) != 1)
-        {
-            return DISASM_ERROE_BYTE_CODE;
-        }
+        ip++;
     }
-
-    fprintf(disasm, "HLT\n");
 
     fclose(disasm);
 
