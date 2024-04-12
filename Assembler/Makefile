@@ -24,26 +24,14 @@ ALL_FILES += $(wildcard ../source/*.cpp)
 SOURCES = $(filter-out ../source/Stack.cpp, $(ALL_FILES))
 OBJ_DIR = Assembler_apps
 
-<<<<<<< HEAD
 VPATH := ./:../source
-=======
-all: Assembler
-	
-Assembler: clean InputText.o ProcessingText.o  Registers.o main.o
-		
-		g++ InputText.o ProcessingText.o  Registers.o main.o -o AssemblerV3 	$(FLAGS)
->>>>>>> 778f7e15a4bb0a8725f9af5831c17a27412326c9
 
 OBJECTS := $(addprefix $(OBJ_DIR)/, $(notdir $(patsubst %.cpp,%.o,$(SOURCES))))
 
-<<<<<<< HEAD
 EXECUTABLE = Assembler
 
 .PHONY: all 
 all: $(OBJECTS) $(EXECUTABLE) 
-=======
-InputText.o:
->>>>>>> 778f7e15a4bb0a8725f9af5831c17a27412326c9
 
 $(EXECUTABLE):
 	@g++ $(OBJECTS) -o $(EXECUTABLE) $(FLAGS)

@@ -24,19 +24,7 @@ LIBS 	= ../source/InputText.cpp ../source/MyFunctions.cpp
 SOURCES += $(wildcard $(LIBS))
 OBJ_DIR = Disassembler_apps
 
-<<<<<<< HEAD
 VPATH := ./:../source
-=======
-all: Disassembler
-	
-Disassembler: clean InputText.o Disasmreg.o main.o
-		
-		g++ InputText.o Disasmreg.o main.o -o DisassemblerV3 	$(FLAGS)
-
-InputText.o:
-
-		g++ ../source/InputText.cpp -c -o InputText.o $(FLAGS) 
->>>>>>> 778f7e15a4bb0a8725f9af5831c17a27412326c9
 
 OBJECTS := $(addprefix $(OBJ_DIR)/, $(notdir $(patsubst %.cpp,%.o,$(SOURCES))))
 

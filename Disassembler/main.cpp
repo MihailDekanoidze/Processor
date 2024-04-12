@@ -22,10 +22,7 @@ int main()
 
     size_t size_code = fsize(code) / sizeof(int);
 
-<<<<<<< HEAD
     //printf("fsize: size_code = %zu\n", size_code);
-=======
->>>>>>> 778f7e15a4bb0a8725f9af5831c17a27412326c9
 
     int* asm_code = (int*) calloc(size_code, sizeof(int));
 
@@ -37,7 +34,6 @@ int main()
     }
 
     size_t ip = 0;
-<<<<<<< HEAD
 
     int command = 0;
 
@@ -45,8 +41,6 @@ int main()
     {
     //printf("CMD: %d\n", command);
     //printf("in while\n");
-=======
->>>>>>> 778f7e15a4bb0a8725f9af5831c17a27412326c9
 
     int command = 0;
 
@@ -142,7 +136,6 @@ int main()
 
                 break;
             }
-<<<<<<< HEAD
             case ADD: fprintf(disasm, "ADD\n"); break;
             case SUB: fprintf(disasm, "SUB\n"); break;
             case DIV: fprintf(disasm, "DIV\n"); break;
@@ -150,37 +143,13 @@ int main()
             case OUT: fprintf(disasm, "OUT\n"); break;
 			case IN:  fprintf(disasm, "IN\n");  break;
             case HLT:  fprintf(disasm, "HLT\n");  break;
-=======
-            case CALL:
-            {
-                fprintf(disasm, "%s ", call); 
-                
-                int tempt = asm_code[++ip];
-                
-                fprintf(disasm, "%d\n", tempt);
-
-                break;
-            }
-            case ADD: fprintf(disasm, "%s\n", add); break;
-            case SUB: fprintf(disasm, "%s\n", sub); break;
-            case DIV: fprintf(disasm, "%s\n", div); break;
-            case MUL: fprintf(disasm, "%s\n", mul); break;
-            case OUT: fprintf(disasm, "%s\n", out); break;
-			case IN:  fprintf(disasm, "%s\n", in);  break;
-            case HLT: fprintf(disasm, "%s\n", hlt);  break;
-            case RET: fprintf(disasm, "%s\n", ret); break;
->>>>>>> 778f7e15a4bb0a8725f9af5831c17a27412326c9
             case RPUSH:
             {
                     fprintf(disasm, "%s ", push);
 
                     int tempt = asm_code[++ip];
-<<<<<<< HEAD
                 
                     // функцию
-=======
-
->>>>>>> 778f7e15a4bb0a8725f9af5831c17a27412326c9
                     if (DisasmPutRegtoFile(disasm, tempt) != 0)
                     {
                         return DISASM_ERROR_RPUSH_REG;
@@ -211,10 +180,7 @@ int main()
                     break;
             }
         }
-<<<<<<< HEAD
         ip++;
-=======
->>>>>>> 778f7e15a4bb0a8725f9af5831c17a27412326c9
     }
 
     fclose(disasm);
