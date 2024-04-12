@@ -19,40 +19,31 @@ float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,$\
 object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,$\
 undefined,unreachable,vla-bound,vptr
 
+ALL_FILES := $(wildcard *.cpp)
+ALL_FILES += $(wildcard ../source/*.cpp)
+SOURCES = $(filter-out ../source/Stack.cpp, $(ALL_FILES))
+OBJ_DIR = Assembler_apps
 
-all: Assembler
-	
-Assembler: clean StrFunctions.o InputText.o ProcessingText.o  Registers.o main.o
-		
-		g++ StrFunctions.o InputText.o ProcessingText.o  Registers.o main.o -o AssemblerV3 	$(FLAGS)
+VPATH := ./:../source
 
+OBJECTS := $(addprefix $(OBJ_DIR)/, $(notdir $(patsubst %.cpp,%.o,$(SOURCES))))
 
+EXECUTABLE = Assembler
 
-StrFunctions.o:
-		
-		g++ ../source/StrFunctions.cpp -c -o StrFunctions.o $(FLAGS) 
-	
-	
-InputText.o:
+.PHONY: all 
+all: $(OBJECTS) $(EXECUTABLE) 
 
-		g++ ../source/InputText.cpp -c -o InputText.o $(FLAGS) 
-	
-ProcessingText.o:
+$(EXECUTABLE):
+	@g++ $(OBJECTS) -o $(EXECUTABLE) $(FLAGS)
 
-		g++ ../source/ProcessingText.cpp -c -o ProcessingText.o $(FLAGS) 
+$(OBJ_DIR)/%.o: %.cpp
+	@g++ $^ -c -o $@ $(FLAGS)
 
-FileProcessing.o:
-
-		g++ ../Assembler/FileProcessing.cpp -c -o FileProcessing.o $(FLAGS) 
-	
-Registers.o:
-
-		g++ ../Assembler/Registers.cpp -c -o Registers.o $(FLAGS) 
-	
-main.o:
-
-		g++ ../Assembler/main.cpp -c -o main.o $(FLAGS) 
-
+.PHONY: clean
 
 clean:
-		rm -rf *.o 
+	rm -rf ./Assembler_apps/*.o
+	rm Assembler
+
+run:
+	./Assembler ../Input/Commands.txt

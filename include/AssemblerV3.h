@@ -1,85 +1,70 @@
 #ifndef ASSEMBLER_H
 #define ASSEMBLER_H
 
-#include <stdio.h>
-#include "StrFunctions.h"
+#include "CommonIncludes.h"
 #include "InputText.h"
-#include "ProcessingText.h"
+#include "../include/Registers.h"
 
-const size_t COMMAND_SIZE = 4;
-const size_t ASM_N_OF_COMMANDS = 2;
-enum Command_size
+
+#define LOG_FUNCTION_BEGIN fprintf(CSP->assembler_log, "Function %s begin\n", __PRETTY_FUNCTION__);
+#define LOG_FUNCTION_END   fprintf(CSP->assembler_log, "Function %s end\n",   __PRETTY_FUNCTION__);
+#define CHECK_ADDRESS_NULL(address, error) if (address == NULL){CSP->errors = error; return error;}
+#define ASM_LOG_(expression, arg) fprintf(CSP->assembler_log, expression, arg);
+
+
+#define PROGRAMM_FINISH                 \
+        text_info_dtor(chars_buffer);   \
+        text_info_dtor(command_lines);  \
+        CSP_dtor(CSP)               
+
+
+const int Num = (1 << 8);
+const int Reg = (1 << 9);
+const int Mem = (1 << 10);
+
+enum assembler_error
 {
-    push_size = 4,
-    add_size  = 3,
-    div_size  = 3,
-    sub_size  = 3,
-    out_size  = 3,
-    hlt_size  = 3,
-    in_size   = 2,
-    pop_size  = 3,
-    mul_size  = 3,
-    jmp_size  = 3,
-    jb_size   = 2,
-    jnb_size  = 3,
-    ja_size   = 2,
-    jna_size  = 3,
-    je_size   = 2,
-    jne_size  = 3
-};
-
-
-enum CommandID
-{
-    PUSH = 1,
-    ADD = 2,
-    SUB = 3,
-    DIV = 4,
-    OUT = 5,
-    HLT = -1,
-    IN = 6,
-    MUL = 7,
-    POP = 32,
-    RPUSH = 17,
-    JMP_COMMAND = 33,
-    JB_COMMAND  = 34,
-    JNB_COMMAND = 35,
-    JA_COMMAND  = 36,
-    JNA_COMMAND = 37,
-    JE_COMMAND  = 38,
-    JNE_COMMAND = 39
-};
-
-
-enum Assembler_error
-{
+    ASM_NO_ERRORS             = 0,
+    ASM_ERROR_COMMAND_EMPTY   = 2,
     ASM_ERROR_OPEN_FILE       = 3,
-    ASM_ERROR_PUSH_REG        = 4,
     ASM_ERROR_POP_REG         = 5,
     ASM_ERROR_RPUSH_REG       = 6,
-    ASM_ERROR_SPU_POP_REG     = 7,
     ASM_ERROR_UNKNOWN_COMMAND = 8,
-    ASM_ERROR_CALLOC          = 9
+    ASM_ERROR_CALLOC          = 9,
+    ASM_ERROR_NULLPTR         = 10,
+    ASM_MEMORY_ACCESS         = 11,
+    ASM_ERROR_UNKNOWN_REG     = 12,
+    ASM_ERROR_INCORRECT_NUM   = 13
 };
 
 
-const char push[]  = "PUSH";
-const char  add[]  = "ADD";
-const char  sub[]  = "SUB";
-const char  div[]  = "DIV";
-const char  out[]  = "OUT";
-const char  hlt[]  = "HLT";
-const char   in[]  = "IN";
-const char  pop[]  = "POP";
-const char  mul[]  = "MUL";
-const char  jmp[]  = "JMP";
-const char   jb[]  = "JB";
-const char  jnb[]  = "JNB";
-const char   ja[]  = "JA";
-const char  jna[]  = "JNA";
-const char   je[]  = "JE";
-const char  jne[]  = "JNE";
-//int* AssemblerV3(FILE* fp);
+struct Argument
+{
+    int             format;
+    int             val; 
+    assembler_error error;
+};
 
+
+struct command_string_processing
+{
+    struct text_info* command_lines;
+    FILE* assembler_log;
+    void* arr_code;
+    size_t arr_code_size;
+    enum assembler_error errors;
+};
+
+
+
+Errors                      file_to_buffer(const char* file_name, text_info* buffer);
+assembler_error             code_arr_ctor(struct command_string_processing* CSP);
+assembler_error             lines_to_bytecode(struct command_string_processing* CSP);
+assembler_error             bytecode_to_file(char* , struct command_string_processing* CSP);
+assembler_error             error_check(struct command_string_processing*, const char*);
+const char*                 error_message(assembler_error error);
+Argument*                   get_arg(const char* source);
+command_string_processing*  CSP_ctor(text_info* command_lines);
+void                        CSP_dtor(command_string_processing* CSP);
 
 #endif // ASSEMBLER_H

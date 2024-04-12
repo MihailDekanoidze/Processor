@@ -3,395 +3,389 @@
 #include "../include/SPUV3.h"
 #include "../include/Stack.h"
 
-int main()
-{
-    const char ASM_FILE_NAME[] = "../Output/AssemblerArrCode";
 
-    FILE* code = fopen(ASM_FILE_NAME, "rb"); // file name to constant
-
-    //printf("ferror is %d\n", ferror(code));
-
-    if (code == NULL)
+// #define SPU_DEBUG 1
+int main(int argc, char** argv)
+{   
+    if (!argc)
     {
-        printf("NULL");
-        return SPU_ERROR_OPEN_FILE;
-    }
-    printf("code = %p\n", code);
-
-    int symbol_code = 0;
-
-    size_t size_code = 0;
-
-    printf("size_code = %zu\n", size_code);
-
-    size_code = fsize(code) / sizeof(int);
-
-    printf("fsize: size_code = %zu\n", size_code);
-
-    int* asm_code = (int*) calloc(size_code, sizeof(int));
-
-    int fread_count = fread(asm_code, sizeof(int), size_code, code);
-
-    //printf("fread_count : %d\n", fread_count);
-
-    if (!fread_count)
-    {
-        printf("EMPTY FILE!\n");
-        return SPU_ERROR_OPEN_FILE;
+        printf("No any files!\n");
+        return 1;
     }
 
-    /*for (size_t i = 0; i < size_code; i++)
+    byte_code_info* asm_code = byte_code_input(argv[1]);
+
+    if (asm_code->error)
     {
-        int symbol = 1;
-        fscanf(code, "%d", &symbol);
-        printf("symbol is %d\n", symbol);
-        printf("command is %d\n", asm_code[i]);
+        return asm_code->error;
     }
-
-
-    printf("ferror is %d\n", ferror(code));
-
-    printf("feof is : %d\n", feof(code));*/
-
-
 
     int curr_command = 0;
-
     size_t ip = 0;
+    struct Processor* SPU  = SPU_ctor();
 
-    struct Processor SPU  = {}; // good
-
-    struct Stack* stk = &SPU.stk; // хотя бы stk
-
-    StackCtor(stk, base_capacity); 
-
-    //printf("Begin\n");
-
-    //StackPrint(stk);
-
+    int* asm_code
+    char zero_flag =  0;
+        
     while (curr_command != HLT)
     {
-        curr_command = asm_code[ip];
-        //printf("CMD: %d\n", curr_command);
+        int check_zero_flag = asm_code[ip] & (1 << 10);
 
-        //printf("ip = %zu\n", ip);
+        //printf("check_zero_flag = %d\n", check_zero_flag);
 
-        elem_t result = 0;
+        //printf("zero_flag = %d\n", zero_flag);
 
-        //StackPrint(stk);
+        //printf("curr_command = %d\n", asm_code[ip]);
 
-        //printf("in while\n");
-
-        //printf("curr_command = %d\n", curr_command);
-
-        switch (curr_command)
+        if ((check_zero_flag && !zero_flag) || (!check_zero_flag))
         {
-            case PUSH:
+            curr_command = (asm_code[ip]);
+
+            //printf("ip = %zu\n", ip);
+            //printf("Command = %d\n", asm_code[ip]);
+
+            elem_t result = 1;
+
+            switch (curr_command)
             {
-                    //printf("case: PUSH\n");
+                case PUSH:
+                {
+                        elem_t tempt = asm_code[++ip];
 
-                    elem_t tempt = asm_code[++ip];
-                    char* reg = 0;
+                        StackPush (stk, tempt);
 
-                    StackPush (stk, tempt);
+                        ip++;
+
+                        break;
+                }
+                case ADD:
+                {
+                        elem_t tempt1 = 0;
+                        elem_t tempt2 = 0;
+
+                        StackPop(stk, &tempt1);
+                        StackPop(stk, &tempt2);
+
+                        result = tempt1 + tempt2;
+
+                        StackPush(stk, result);
+
+                        ip++;
+
+                        break;
+                }
+                case SUB:
+                {
+                        elem_t tempt1 = 0;
+                        elem_t tempt2 = 0;
+
+                        StackPop(stk, &tempt1);
+                        StackPop(stk, &tempt2);
+
+                        result = tempt2 - tempt1;
+
+                        StackPush(stk, result);
+
+                        ip++;
+
+                        break;
+                }
+                case DIV:
+                {
+                        elem_t tempt1 = 0;
+                        elem_t tempt2 = 0;
+
+                        StackPop(stk, &tempt1);
+                        StackPop(stk, &tempt2);
+
+                        result = tempt2 / tempt1;
+
+                        StackPush(stk, result);
+
+                        ip++;
+
+                        break;
+                }
+                case OUT:
+                {
+                        result = 0;
+
+                        StackPop(stk, &result);
+                        printf("\n\n<<<<<<Atention!>>>>>>\n\nResult = %d\n\n", result);
+                        printf("SPU.ax = %d\n", SPU.ax);
+                        printf("SPU.bx = %d\n", SPU.bx);
+                        printf("SPU.cx = %d\n", SPU.cx);
+                        printf("SPU.dx = %d\n", SPU.dx);
+                        printf("StackSize = %zu\n", StackSize(stk));
+
+                        ip++;
+
+                        break;
+                }
+                case MUL:
+                {
+                        elem_t tempt1 = 0;
+                        elem_t tempt2 = 0;
+
+                        StackPop(stk, &tempt1);
+                        StackPop(stk, &tempt2);
+
+                        result = tempt1 * tempt2;
+                        StackPush(stk, result);
+
+                        ip++;
+
+                        break;
+                }
+                case RPUSH:
+                {
+                        int reg_id = asm_code[(++ip)];
+
+                        switch(reg_id) 
+                        {
+                            case 1:
+                            {
+                                StackPush(stk, SPU.ax);
+                                break;
+                            }
+                            case 2:
+                            {
+                                StackPush(stk, SPU.bx);
+                                break;
+                            }
+                            case 3:
+                            {
+                                StackPush(stk, SPU.cx);
+                                break;
+                            }
+                            case 4:
+                            {
+                                StackPush(stk, SPU.dx);
+                                break;
+                            }
+                            default:
+                            {
+                                return SPU_ERROR_RPUSH_REG;
+                            }
+                        }
+
+                        ip++;
+
+                        break;
+                }
+                case IN:
+                {
+                    elem_t tempt = 0;
+
+                    printf("Enter the integer: ");
+                    int arg_scaned = scanf("%d", &tempt);
+
+                    if (!arg_scaned)
+                    {
+                        printf("Неудалось считать аршумент\n");
+                        return SPU_EMPTY_ARG;
+                    }
+
+                    StackPush(stk, tempt);
 
                     ip++;
 
-                    //printf("tempt = %d\n", tempt);
-
                     break;
-            }
-            case ADD:
-            {
-                    //printf("case: ADD\n");
+                }
+                case RPOP:
+                {
+                    int reg_id = asm_code[(++ip)++];
 
-                    elem_t tempt1 = 0;
-                    elem_t tempt2 = 0;
+                    elem_t reg = 0;
 
-                    StackPop(stk, &tempt1);
-                    StackPop(stk, &tempt2);
-                    StackPush(stk, tempt1 + tempt2);
-
-                    ip++;
-
-                    break;
-            }
-            case SUB:
-            {
-                    //printf("case: SUB\n");
-
-                    elem_t tempt1 = 0;
-                    elem_t tempt2 = 0;
-
-                    StackPop(stk, &tempt1);
-                    StackPop(stk, &tempt2);
-                    StackPush(stk, tempt2 - tempt1);
-
-                    ip++;
-
-                    break;
-            }
-            case DIV:
-            {
-                    //printf("case: DIV\n");
-
-                    elem_t tempt1 = 0;
-                    elem_t tempt2 = 0;
-
-                    StackPop(stk, &tempt1);
-                    StackPop(stk, &tempt2);
-                    StackPush(stk, tempt2 / tempt1);
-
-                    ip++;
-
-                    break;
-            }
-            case OUT:
-            {
-                    //printf("case: OUT\n");
-
-                    elem_t result = 0;
-
-                    //StackPrint(stk);
-                    StackPop(stk, &result);
-                    printf("\n\n<<<<<<Atention!>>>>>>\n\nResult = %d\n\n", result);
-                    printf("SPU.ax = %lg\n", SPU.ax);
-                    printf("SPU.bx = %lg\n", SPU.bx);
-                    printf("SPU.cx = %lg\n", SPU.cx);
-                    printf("SPU.dx = %lg\n", SPU.dx);
-                    printf("StackSize = %zu\n", StackSize(stk));
-                    StackClear(stk);
-
-                    ip++;
-
-                    break;
-            }
-            case MUL:
-            {
-                    elem_t tempt1 = 0;
-                    elem_t tempt2 = 0;
-
-                    StackPop(stk, &tempt1);
-                    StackPop(stk, &tempt2);
-
-                    StackPush(stk, tempt1 * tempt2);
-
-                    ip++;
-
-                    break;
-            }
-            case RPUSH:
-            {
-                    int reg_id = asm_code[++ip];
+                    StackPop(stk, &reg);
 
                     switch(reg_id) 
                     {
-                        case 1:
-                        {
-                            StackPush(stk, SPU.ax);
-                            break;
-                        }
-                        case 2:
-                        {
-                            StackPush(stk, SPU.bx);
-                            break;
-                        }
-                        case 3:
-                        {
-                            StackPush(stk, SPU.cx);
-                            break;
-                        }
-                        case 4:
-                        {
-                            StackPush(stk, SPU.dx);
-                            break;
-                        }
+                        case 1: SPU.ax = reg; break;
+                        case 2: SPU.bx = reg; break;
+                        case 3: SPU.cx = reg; break;
+                        case 4: SPU.dx = reg; break;
                         default:
                         {
-                            return SPU_ERROR_RPUSH_REG;
+                            return SPU_ERROR_SPU_POP_REG;
                         }
                     }
 
-                    ip++;
-
                     break;
-            }
-            case IN:
-            {
-                elem_t tempt = 0;
-
-                printf("Enter the integer: ");
-                scanf("%d", &tempt);
-
-                //printf("tempt = %lg\n", tempt);
-
-                StackPush(stk, tempt);
-
-                ip++;
-
-                break;
-            }
-            case POP:
-            {
-                int reg_id = asm_code[(++ip)++];
-
-                //printf("\n<<<POP>>>\n");
-
-                //printf("reg_id = %d\n", reg_id);
-                elem_t reg = 0;
-
-                StackPop(stk, &reg);
-
-                switch(reg_id) // OPYAT'
+                }
+                case PUSH_RAM:
                 {
-                    case 1: SPU.ax = reg; break;
-                    case 2: SPU.bx = reg; break;
-                    case 3: SPU.cx = reg; break;
-                    case 4: SPU.dx = reg; break;
-                    default:
+                    size_t memory_address = (size_t)asm_code[ip + 1];
+                    StackPush(stk, memory_address)
+                }
+                case JMP_COMMAND: ip = (size_t)asm_code[ip + 1]; break;
+                case JA_COMMAND :
+                {
+                    elem_t curr_loop = 0;
+                    elem_t count_loops = 0;
+
+                    StackPop(stk, &count_loops);
+                    StackPop(stk, &curr_loop);
+
+                    if (curr_loop > count_loops)
                     {
-                        return SPU_ERROR_SPU_POP_REG;
+                        ip = (size_t)asm_code[ip + 1];
                     }
-                }
-
-                break;
-            }
-            case JMP_COMMAND: ip = asm_code[ip + 1]; break;
-            case JA_COMMAND :
-            {
-                elem_t curr_loop = 0;
-                elem_t count_loops = 0;
-
-                StackPop(stk, &count_loops);
-                StackPop(stk, &curr_loop);
-
-                if (curr_loop > count_loops)
-                {
-                    ip = asm_code[ip + 1];
-                }
-                else
-                {
-                    ip += 2;
-                }
-                break;
-            }
-            case JB_COMMAND :
-            {
-                elem_t curr_loop = 0;
-                elem_t count_loops = 0;
-
-                StackPop(stk, &count_loops);
-                StackPop(stk, &curr_loop);
-
-                //printf("curr_loop = %d\n", curr_loop);
-                //printf("count_loops = %d\n", count_loops);
-                //printf("asm_code[ip + 1] = %d\n", asm_code[ip + 1]);
-
-                if (curr_loop < count_loops)
-                {
-                    ip = asm_code[ip + 1];
-                }
-                else
-                {
-                    ip += 2;
-                }
-                break;
-            }
-            case JE_COMMAND :
-            {
-                elem_t curr_loop = 0;
-                elem_t count_loops = 0;
-
-                StackPop(stk, &count_loops);
-                StackPop(stk, &curr_loop);
-
-                if (curr_loop == count_loops)
-                {
-                    ip = asm_code[ip + 1];
-                }
-                else
-                {
-                    ip += 2;
-                }
-                break;
-            }
-            case JNA_COMMAND :
-            {
-                elem_t curr_loop = 0;
-                elem_t count_loops = 0;
-
-                StackPop(stk, &count_loops);
-                StackPop(stk, &curr_loop);
-
-                if (curr_loop >= count_loops)
-                {
-                    ip = asm_code[ip + 1];
-                }
-                else
-                {
-                    ip += 2;
-                }
-                break;
-            }
-            case JNB_COMMAND :
-            {
-                elem_t curr_loop = 0;
-                elem_t count_loops = 0;
-
-                StackPop(stk, &count_loops);
-                StackPop(stk, &curr_loop);
-
-                if (curr_loop <= count_loops)
-                {
-                    ip = asm_code[ip + 1];
-                }
-                else
-                {
-                    ip += 2;
-                }
-                break;
-            }
-            case JNE_COMMAND :
-            {
-                elem_t curr_loop = 0;
-                elem_t count_loops = 0;
-
-                StackPop(stk, &count_loops);
-                StackPop(stk, &curr_loop);
-
-                if (curr_loop != count_loops)
-                {
-                    ip = asm_code[ip + 1];
-                }
-                else
-                {
-                    ip += 2;
-                }
-                break;
-            }
-            case HLT:
-            {
-                    StackDtor(stk);
+                    else
+                    {
+                        ip += 2;
+                    }
                     break;
-            }
-            default:
-            {
-                    printf("\n<<<UNEXPECTED EXIT>>>\n");
+                }
+                case JB_COMMAND :
+                {
+                    elem_t curr_loop = 0;
+                    elem_t count_loops = 0;
 
-                    return SPU_ERROR_UNKNOWN_CURR_COMMAND;
+                    StackPop(stk, &count_loops);
+                    StackPop(stk, &curr_loop);
+
+                    if (curr_loop < count_loops)
+                    {
+                        ip = (size_t)asm_code[ip + 1];
+                    }
+                    else
+                    {
+                        ip += 2;
+                    }
                     break;
+                }
+                case JE_COMMAND :
+                {
+                    elem_t curr_loop = 0;
+                    elem_t count_loops = 0;
+
+                    StackPop(stk, &count_loops);
+                    StackPop(stk, &curr_loop);
+
+                    if (curr_loop == count_loops)
+                    {
+                        ip = (size_t)asm_code[ip + 1];
+                    }
+                    else
+                    {
+                        ip += 2;
+                    }
+                    break;
+                }
+                case JNA_COMMAND :
+                {
+                    elem_t curr_loop = 0;
+                    elem_t count_loops = 0;
+
+                    StackPop(stk, &count_loops);
+                    StackPop(stk, &curr_loop);
+
+                    if (curr_loop >= count_loops)
+                    {
+                        ip = (size_t)asm_code[ip + 1];
+                    }
+                    else
+                    {
+                        ip += 2;
+                    }
+                    break;
+                }
+                case JNB_COMMAND :
+                {
+                    elem_t curr_loop = 0;
+                    elem_t count_loops = 0;
+
+                    StackPop(stk, &count_loops);
+                    StackPop(stk, &curr_loop);
+
+                    if (curr_loop <= count_loops)
+                    {
+                        ip = (size_t)asm_code[ip + 1];
+                    }
+                    else
+                    {
+                        ip += 2;
+                    }
+                    break;
+                }
+                case JNE_COMMAND :
+                {
+                    elem_t curr_loop = 0;
+                    elem_t count_loops = 0;
+
+                    StackPop(stk, &count_loops);
+                    StackPop(stk, &curr_loop);
+
+                    if (curr_loop != count_loops)
+                    {
+                        ip = (size_t)asm_code[ip + 1];
+                    }
+                    else
+                    {
+                        ip += 2;
+                    }
+                    break;
+                }
+                case CALL:
+                {
+                    StackPush(&return_stk, int(ip + 2));
+
+                    ip = (size_t)asm_code[ip + 1];
+
+                    //printf("current ip = %zu\n", ip);
+
+                    break;
+                }
+                case RET:
+                {
+                    elem_t return_ptr = 0;
+
+                    StackPop(&return_stk, &return_ptr);
+
+                    ip = (size_t)return_ptr; 
+                    
+                    break;
+                }
+                case HLT:
+                {
+                        StackDtor(stk);
+                        StackDtor(&return_stk);
+                        break;
+                }
+                default:
+                {
+                        printf("\n<<<UNEXPECTED EXIT>>>\n");
+                        printf("Unkown command is %d\n", curr_command);
+                        /*for (size_t i = ip ; i < fread_count; i++)           \
+                        {                                                   \
+                            printf("asm_code[%zu] = %d\n", i, asm_code[i]); \
+                        }*/
+                        //printf("next  command is %d\n", asm_code[ip + 1]);
+
+                        return SPU_ERROR_UNKNOWN_CURR_COMMAND;
+                        break;
+                }
             }
+
+            zero_flag = !result;
+
+
+            //StackPrint(stk);
+
+            //printf("if After command[%d] zero_flag is %d\n", curr_command, zero_flag);
+    
         }
-        /*StackPrint(stk);
-
-        printf("SPU.ax = %lg\n", SPU.ax);
-        printf("SPU.bx = %lg\n", SPU.bx);
-        printf("SPU.cx = %lg\n", SPU.cx);
-        printf("SPU.dx = %lg\n", SPU.dx);
-        //printf("result = %lg\n", result);
-        printf("StackSize = %zu\n\n", StackSize(stk));*/
+        else
+        {
+            zero_flag = 0;
+            //printf("else After command[%d] zero_flag is %d\n", curr_command, zero_flag);
+    
+            ip++;
+        }
 
     }
 
-    free(asm_code);
+    SPU_dtor(SPU);
 }

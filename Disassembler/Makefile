@@ -19,25 +19,30 @@ float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,$\
 object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,$\
 undefined,unreachable,vla-bound,vptr
 
+SOURCES := $(wildcard *.cpp)
+LIBS 	= ../source/InputText.cpp ../source/MyFunctions.cpp
+SOURCES += $(wildcard $(LIBS))
+OBJ_DIR = Disassembler_apps
 
-all: Disassembler
-	
-Disassembler: clean InputText.o Disasmreg.o main.o
-		
-		g++ InputText.o Disasmreg.o main.o -o DisassemblerV3 	$(FLAGS)
+VPATH := ./:../source
 
-InputText.o:
+OBJECTS := $(addprefix $(OBJ_DIR)/, $(notdir $(patsubst %.cpp,%.o,$(SOURCES))))
 
-		g++ ../source/InputText.cpp -c -o InputText.o $(FLAGS) 
+EXECUTABLE = Disassembler
 
-Disasmreg.o:
+.PHONY: all 
+all: $(EXECUTABLE) 
 
-		g++ Disasmreg.cpp -c -o Disasmreg.o $(FLAGS)
+$(EXECUTABLE): $(OBJECTS)
+	@g++ $(OBJECTS) -o $(EXECUTABLE) $(FLAGS)
 
-main.o:
+$(OBJ_DIR)/%.o: %.cpp
+	@g++ $^ -c -o $@ $(FLAGS)
 
-		g++ main.cpp -c -o main.o $(FLAGS)
+.PHONY: clean
+clean: 
+	rm -rf $(OBJ_DIR)/*.o 
+	rm $(EXECUTABLE)
 
-clean:
-
-		rm -rf *.o Disassembler
+run:
+	./$(EXECUTABLE) ../Output/AssemblerArrCode.txt ../Output/DisassmeblerArrCode.txt

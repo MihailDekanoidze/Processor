@@ -3,7 +3,7 @@
 #include "../include/Registers.h"
 
 
-int AsmPutRegToBuffer(int * arr_code, int reg_id)
+int asm_put_reg_to_buffer(int * arr_code, int reg_id)
 {
     switch(reg_id)
     {
@@ -23,7 +23,7 @@ int AsmPutRegToBuffer(int * arr_code, int reg_id)
     return 0;
 }
 
-int AsmGetRegId(char registr)
+int asm_get_reg_id(char registr)
 {
     return registr - 'A' + 1;
 }

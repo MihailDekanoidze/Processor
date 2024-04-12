@@ -1,67 +1,70 @@
 #include <stdio.h>
 #include <malloc.h>
 #include "../include/InputText.h"
+#include "../include/CommonIncludes.h"
 
+
+text_info* text_info_ctor(void)
+{
+    text_info* text = (text_info*)calloc(1, sizeof(text_info));
+    return text;
+}
+
+void text_info_dtor(text_info* text)
+{
+    if (!text)  return;
+    
+    free(text->buffer);
+    text->elemcount = 0;
+    free(text);
+}
 
 size_t fsize(FILE* file)
 {
     size_t begin = 0;
     size_t end = 0;
 
-    begin = ftell(file);
+    begin = (size_t)ftell(file);
     fseek(file, 0, SEEK_END);
-    end = ftell(file);
+    end = (size_t)ftell(file);
 
     rewind(file);
 
     return end - begin;
 }
 
-
-struct TextInfo* InputText(FILE* file)
+Errors input_text(FILE* file, size_t elem_size, text_info* text)
 {
     size_t size = 0;
-
     size = fsize(file);
-
     rewind(file);
 
-    //printf("size = %d/n", size);
-
-    char* buffer = (char*) calloc(size + 1, sizeof(char));
+    char* buffer = (char*) calloc(size + 1, elem_size);
 
     size_t elemcount = 0;
-    elemcount = fread(buffer, sizeof(char), size, file);
+    elemcount = fread(buffer, elem_size, size, file);
+    if (!elemcount) return CALLOC;
 
-    /*if (elemcount != size)          ///  Спросить
-    {
-        text.buffer = NULL;
-        return text;
-    }*/
+    buffer[elemcount * elem_size] = '\0';
 
-    buffer[elemcount] = '\0';
-
-    struct TextInfo* text = (struct TextInfo*) calloc(1, sizeof(struct TextInfo));
     text->buffer = buffer;
     text->elemcount = elemcount;
 
-    //printf("char_read = %d\n", elemcount);
-    //charprint(text);
-
-    return text;
+    return NO_ERROR;
 }
 
-
-void charprint(struct TextInfo text)
+void charprint(struct text_info* text)
 {
-    size_t size = text.elemcount;
-    char* ptr = (char*) text.buffer;
+    size_t size = text->elemcount;
+    char* ptr = (char*) text->buffer;
 
     for (size_t i = 0; i < size; i++)
     {
         printf("%c (%d)\n", ptr[i], ptr[i]);
     }
+
 }
+
 
 
 
