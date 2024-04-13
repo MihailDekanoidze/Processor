@@ -19,7 +19,6 @@ float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,$\
 object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,$\
 undefined,unreachable,vla-bound,vptr
 
-
 ALL_FILES := $(wildcard *.cpp)
 ALL_FILES += $(wildcard ../source/*.cpp)
 SOURCES = $(filter-out ../source/Stack.cpp, $(ALL_FILES))
@@ -47,4 +46,4 @@ clean:
 	rm Assembler
 
 run:
-	./Assembler ../Input/Commands.txt
+	./Assembler ../Input/Commands.txt ../Output/ByteCode.txt

@@ -15,48 +15,25 @@ int main(int argc, char** argv)
         return 1;
     }
     
-    text_info* chars_buffer = text_info_ctor();
+    text_info* chars_buffer         = text_info_ctor();
+    text_info* command_lines        = NULL;   
+    command_string_processing* CSP  = NULL;
 
     error = file_to_buffer(argv[1], chars_buffer);
+    ERROR_CHECK(error, "Input abort: error code ")
 
-    if (error)
-    {
-        text_info_dtor(chars_buffer);
-        printf("Input abort: error code %d\n", error);
-        return 2;
-    }
-
-    text_info* command_lines = text_info_ctor();
+    command_lines = text_info_ctor();
     error = lines(chars_buffer, command_lines);
+    ERROR_CHECK(error, "Separation by lines abort: error code ")
 
-    if (error)
-    {
-        text_info_dtor(chars_buffer);
-        text_info_dtor(command_lines);
-        printf("Separation by lines abort: error code %d\n", error);
-        return 2;
-    }
-
-    command_string_processing* CSP = CSP_ctor(command_lines);                                
-    if (CSP->errors)                                                         // TODO : define
-    {
-        printf("CSP create failed: error code %d\n", CSP->errors);
-        PROGRAMM_FINISH;
-        return 3;
-    }
+    CSP = CSP_ctor(command_lines);      
+    ERROR_CHECK(CSP->errors, "CSP create failed: error code ")                          
 
     CSP->errors = lines_to_bytecode(CSP);
-    if(CSP->errors)
-    {
-        printf("Code translation failed: error code %d\n", CSP->errors);
-        PROGRAMM_FINISH;
-        return 4;
-    }
+    ERROR_CHECK(CSP->errors, "Code translation failed: error code ")
 
-    for (size_t i = 0; i < CSP->arr_code_size; i++)
-    {
-        printf("byte_code[%zu] = %d\n", i, ((int*)CSP->arr_code)[i]);
-    }
+    error = byte_code_to_file(argv[2], CSP->byte_code);
+    ERROR_CHECK(error, "File writing failed: error code ");
 
     PROGRAMM_FINISH;
 }

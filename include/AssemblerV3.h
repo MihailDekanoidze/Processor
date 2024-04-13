@@ -12,11 +12,24 @@
 #define ASM_LOG_(expression, arg) fprintf(CSP->assembler_log, expression, arg);
 
 
+
+
 #define PROGRAMM_FINISH                 \
         text_info_dtor(chars_buffer);   \
         text_info_dtor(command_lines);  \
         CSP_dtor(CSP)               
 
+
+
+#define ERROR_CHECK(error, messege)         \
+if (error)                                  \
+{                                           \
+    printf(messege);                        \
+    int curr_error = error;                 \
+    printf("%d\n", error);                  \
+    PROGRAMM_FINISH;                        \
+    return curr_error;                      \
+}
 
 const int Num = (1 << 8);
 const int Reg = (1 << 9);
@@ -48,22 +61,18 @@ struct Argument
 
 struct command_string_processing
 {
-    struct text_info* command_lines;
+    text_info* command_lines;
     FILE* assembler_log;
-    void* arr_code;
-    size_t arr_code_size;
+    text_info* byte_code;
     enum assembler_error errors;
 };
 
 
 
 Errors                      file_to_buffer(const char* file_name, text_info* buffer);
-assembler_error             code_arr_ctor(struct command_string_processing* CSP);
 assembler_error             lines_to_bytecode(struct command_string_processing* CSP);
-assembler_error             bytecode_to_file(char* , struct command_string_processing* CSP);
-assembler_error             error_check(struct command_string_processing*, const char*);
-const char*                 error_message(assembler_error error);
-Argument*                   get_arg(const char* source);
+Errors                      byte_code_to_file(const char* file_name, text_info* byte_code);
+Argument*                   get_arg(const char* source, FILE* log);
 command_string_processing*  CSP_ctor(text_info* command_lines);
 void                        CSP_dtor(command_string_processing* CSP);
 
