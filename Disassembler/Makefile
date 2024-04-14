@@ -19,9 +19,9 @@ float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,$\
 object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,$\
 undefined,unreachable,vla-bound,vptr
 
-SOURCES := $(wildcard *.cpp)
-LIBS 	= ../source/InputText.cpp ../source/MyFunctions.cpp
-SOURCES += $(wildcard $(LIBS))
+ALL_FILES := $(wildcard *.cpp)
+ALL_FILES += $(wildcard ../source/*.cpp)
+SOURCES = $(filter-out ../source/Stack.cpp, $(ALL_FILES))
 OBJ_DIR = Disassembler_apps
 
 VPATH := ./:../source
@@ -45,4 +45,4 @@ clean:
 	rm $(EXECUTABLE)
 
 run:
-	./$(EXECUTABLE) ../Output/AssemblerArrCode.txt ../Output/DisassmeblerArrCode.txt
+	./$(EXECUTABLE) ../Output/ByteCode.txt ../Output/DisassmeblerArrCode.txt
