@@ -1,4 +1,0 @@
-Function void StackDtor(Stack*) in line 195 in file ../source/Stack.cpp begin
-Function void StackClear(Stack*) in line 253 in file ../source/Stack.cpp begin
-Function void StackClear(Stack*) in line 259 in file ../source/Stack.cpp end
-Function void StackDtor(Stack*) in line 214 in file ../source/Stack.cpp end

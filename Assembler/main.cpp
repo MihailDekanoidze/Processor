@@ -25,6 +25,7 @@ int main(int argc, char** argv)
     error = lines(chars_buffer, command_lines);
     ERROR_CHECK(error, "Separation by lines abort: error code ", ASM_PROGRAMM_FINISH);
 
+
     CSP = CSP_ctor(command_lines); 
     if (!CSP) error = NULL_PTR;
     ERROR_CHECK(error, "CSP create failed: error code ", ASM_PROGRAMM_FINISH);

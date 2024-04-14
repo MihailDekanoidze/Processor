@@ -1,0 +1,611 @@
+Function assembler_error lines_to_bytecode(command_string_processing*) begin
+line = PUSH 0
+arg  = 0
+arg format = 256
+arg val = 0
+arg error = 0
+command = 385
+arg = 0
+command_len = 4
+
+line = PUSH 10
+arg  = 10
+arg format = 256
+arg val = 10
+arg error = 0
+command = 385
+arg = 10
+command_len = 4
+
+line = PUSH 116
+arg  = 116
+arg format = 256
+arg val = 116
+arg error = 0
+command = 385
+arg = 116
+command_len = 4
+
+line = PUSH 110
+arg  = 110
+arg format = 256
+arg val = 110
+arg error = 0
+command = 385
+arg = 110
+command_len = 4
+
+line = PUSH 105
+arg  = 105
+arg format = 256
+arg val = 105
+arg error = 0
+command = 385
+arg = 105
+command_len = 4
+
+line = PUSH 32
+arg  = 32
+arg format = 256
+arg val = 32
+arg error = 0
+command = 385
+arg = 32
+command_len = 4
+
+line = PUSH 114
+arg  = 114
+arg format = 256
+arg val = 114
+arg error = 0
+command = 385
+arg = 114
+command_len = 4
+
+line = PUSH 101
+arg  = 101
+arg format = 256
+arg val = 101
+arg error = 0
+command = 385
+arg = 101
+command_len = 4
+
+line = PUSH 116
+arg  = 116
+arg format = 256
+arg val = 116
+arg error = 0
+command = 385
+arg = 116
+command_len = 4
+
+line = PUSH 110
+arg  = 110
+arg format = 256
+arg val = 110
+arg error = 0
+command = 385
+arg = 110
+command_len = 4
+
+line = PUSH 69
+arg  = 69
+arg format = 256
+arg val = 69
+arg error = 0
+command = 385
+arg = 69
+command_len = 4
+
+line = PUTS
+command = 23
+
+line = 
+line = IN
+command = 8
+
+line = POP [0]
+arg  = [0]
+arg format = 1024
+arg val = 0
+arg error = 0
+command = 1161
+arg = 0
+command_len = 3
+
+line = PUSH 1
+arg  = 1
+arg format = 256
+arg val = 1
+arg error = 0
+command = 385
+arg = 1
+command_len = 4
+
+line = POP AX
+arg  = AX
+arg format = 512
+arg val = 1
+arg error = 0
+command = 649
+arg = 1
+command_len = 3
+
+line = PUSH 1
+arg  = 1
+arg format = 256
+arg val = 1
+arg error = 0
+command = 385
+arg = 1
+command_len = 4
+
+line = POP BX
+arg  = BX
+arg format = 512
+arg val = 2
+arg error = 0
+command = 649
+arg = 2
+command_len = 3
+
+line = PUSH 1
+arg  = 1
+arg format = 256
+arg val = 1
+arg error = 0
+command = 385
+arg = 1
+command_len = 4
+
+line = POP CX
+arg  = CX
+arg format = 512
+arg val = 3
+arg error = 0
+command = 649
+arg = 3
+command_len = 3
+
+line = 
+line = NOPE 75
+arg  = 75
+arg format = 256
+arg val = 75
+arg error = 0
+new size = 237
+line = CALL 200
+arg  = 200
+arg format = 256
+arg val = 200
+arg error = 0
+command = 394
+arg = 200
+command_len = 4
+
+line = 
+line = NOPE 75
+arg  = 75
+arg format = 256
+arg val = 75
+arg error = 0
+new size = 312
+line = 
+line = PUSH 0
+arg  = 0
+arg format = 256
+arg val = 0
+arg error = 0
+command = 385
+arg = 0
+command_len = 4
+
+line = PUSH 10
+arg  = 10
+arg format = 256
+arg val = 10
+arg error = 0
+command = 385
+arg = 10
+command_len = 4
+
+line = PUSH 101
+arg  = 101
+arg format = 256
+arg val = 101
+arg error = 0
+command = 385
+arg = 101
+command_len = 4
+
+line = PUSH 99
+arg  = 99
+arg format = 256
+arg val = 99
+arg error = 0
+command = 385
+arg = 99
+command_len = 4
+
+line = PUSH 110
+arg  = 110
+arg format = 256
+arg val = 110
+arg error = 0
+command = 385
+arg = 110
+command_len = 4
+
+line = PUSH 101
+arg  = 101
+arg format = 256
+arg val = 101
+arg error = 0
+command = 385
+arg = 101
+command_len = 4
+
+line = PUSH 117
+arg  = 117
+arg format = 256
+arg val = 117
+arg error = 0
+command = 385
+arg = 117
+command_len = 4
+
+line = PUSH 113
+arg  = 113
+arg format = 256
+arg val = 113
+arg error = 0
+command = 385
+arg = 113
+command_len = 4
+
+line = PUSH 101
+arg  = 101
+arg format = 256
+arg val = 101
+arg error = 0
+command = 385
+arg = 101
+command_len = 4
+
+line = PUSH 115
+arg  = 115
+arg format = 256
+arg val = 115
+arg error = 0
+command = 385
+arg = 115
+command_len = 4
+
+line = PUSH 32
+arg  = 32
+arg format = 256
+arg val = 32
+arg error = 0
+command = 385
+arg = 32
+command_len = 4
+
+line = PUSH 102
+arg  = 102
+arg format = 256
+arg val = 102
+arg error = 0
+command = 385
+arg = 102
+command_len = 4
+
+line = PUSH 111
+arg  = 111
+arg format = 256
+arg val = 111
+arg error = 0
+command = 385
+arg = 111
+command_len = 4
+
+line = PUSH 32
+arg  = 32
+arg format = 256
+arg val = 32
+arg error = 0
+command = 385
+arg = 32
+command_len = 4
+
+line = PUSH 114
+arg  = 114
+arg format = 256
+arg val = 114
+arg error = 0
+command = 385
+arg = 114
+command_len = 4
+
+line = PUSH 101
+arg  = 101
+arg format = 256
+arg val = 101
+arg error = 0
+command = 385
+arg = 101
+command_len = 4
+
+line = PUSH 98
+arg  = 98
+arg format = 256
+arg val = 98
+arg error = 0
+command = 385
+arg = 98
+command_len = 4
+
+line = PUSH 109
+arg  = 109
+arg format = 256
+arg val = 109
+arg error = 0
+command = 385
+arg = 109
+command_len = 4
+
+line = PUSH 101
+arg  = 101
+arg format = 256
+arg val = 101
+arg error = 0
+command = 385
+arg = 101
+command_len = 4
+
+line = PUSH 109
+arg  = 109
+arg format = 256
+arg val = 109
+arg error = 0
+command = 385
+arg = 109
+command_len = 4
+
+line = PUSH 32
+arg  = 32
+arg format = 256
+arg val = 32
+arg error = 0
+command = 385
+arg = 32
+command_len = 4
+
+line = PUSH 104
+arg  = 104
+arg format = 256
+arg val = 104
+arg error = 0
+command = 385
+arg = 104
+command_len = 4
+
+line = PUSH 116
+arg  = 116
+arg format = 256
+arg val = 116
+arg error = 0
+command = 385
+arg = 116
+command_len = 4
+
+line = PUSH [0]
+arg  = [0]
+arg format = 1024
+arg val = 0
+arg error = 0
+command = 1153
+arg = 0
+command_len = 4
+
+line = PUSH 48
+arg  = 48
+arg format = 256
+arg val = 48
+arg error = 0
+command = 385
+arg = 48
+command_len = 4
+
+line = ADD
+command = 2
+
+line = PUSH 32
+arg  = 32
+arg format = 256
+arg val = 32
+arg error = 0
+command = 385
+arg = 32
+command_len = 4
+
+line = PUSH 101
+arg  = 101
+arg format = 256
+arg val = 101
+arg error = 0
+command = 385
+arg = 101
+command_len = 4
+
+line = PUSH 104
+arg  = 104
+arg format = 256
+arg val = 104
+arg error = 0
+command = 385
+arg = 104
+command_len = 4
+
+line = PUSH 84
+arg  = 84
+arg format = 256
+arg val = 84
+arg error = 0
+command = 385
+arg = 84
+command_len = 4
+
+line = PUTS
+command = 23
+
+line = 
+line = PUSH AX
+arg  = AX
+arg format = 512
+arg val = 1
+arg error = 0
+command = 641
+arg = 1
+command_len = 4
+
+line = OUT
+command = 6
+
+line = HLT
+command = 7
+
+line = 
+line = NOPE 200
+arg  = 200
+arg format = 256
+arg val = 200
+arg error = 0
+new size = 512
+line = PUSH CX
+arg  = CX
+arg format = 512
+arg val = 3
+arg error = 0
+command = 641
+arg = 3
+command_len = 4
+
+line = PUSH [0]
+arg  = [0]
+arg format = 1024
+arg val = 0
+arg error = 0
+command = 1153
+arg = 0
+command_len = 4
+
+line = JNE  225
+arg  = 225
+arg format = 256
+arg val = 225
+arg error = 0
+command = 403
+arg = 225
+command_len = 3
+
+line = RET
+command = 20
+
+line = NOPE 225
+arg  = 225
+arg format = 256
+arg val = 225
+arg error = 0
+new size = 737
+line = PUSH BX
+arg  = BX
+arg format = 512
+arg val = 2
+arg error = 0
+command = 641
+arg = 2
+command_len = 4
+
+line = PUSH AX
+arg  = AX
+arg format = 512
+arg val = 1
+arg error = 0
+command = 641
+arg = 1
+command_len = 4
+
+line = ADD
+command = 2
+
+line = PUSH BX
+arg  = BX
+arg format = 512
+arg val = 2
+arg error = 0
+command = 641
+arg = 2
+command_len = 4
+
+line = POP AX
+arg  = AX
+arg format = 512
+arg val = 1
+arg error = 0
+command = 649
+arg = 1
+command_len = 3
+
+line = POP BX
+arg  = BX
+arg format = 512
+arg val = 2
+arg error = 0
+command = 649
+arg = 2
+command_len = 3
+
+line = PUSH CX
+arg  = CX
+arg format = 512
+arg val = 3
+arg error = 0
+command = 641
+arg = 3
+command_len = 4
+
+line = PUSH 1
+arg  = 1
+arg format = 256
+arg val = 1
+arg error = 0
+command = 385
+arg = 1
+command_len = 4
+
+line = SUB
+command = 3
+
+line = POP CX
+arg  = CX
+arg format = 512
+arg val = 3
+arg error = 0
+command = 649
+arg = 3
+command_len = 3
+
+line = CALL 200
+arg  = 200
+arg format = 256
+arg val = 200
+arg error = 0
+command = 394
+arg = 200
+command_len = 4
+
+line = RET
+command = 20
+
+Function assembler_error lines_to_bytecode(command_string_processing*) end

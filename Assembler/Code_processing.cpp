@@ -12,8 +12,7 @@ command_string_processing* CSP_ctor(text_info* command_lines)
     command_string_processing* CSP = (command_string_processing*)calloc(1, sizeof(command_string_processing));
     if (!CSP) return CSP;
 
-    FILE* asm_log = fopen("Asm_log.txt", "w");
-
+    FILE* asm_log = fopen("./logs/Asm_log.txt", "w");
     ERROR_PUT(!asm_log, CSP->errors, ASM_ERROR_OPEN_FILE, CSP);
 
     CSP->assembler_log = asm_log;
@@ -52,29 +51,29 @@ assembler_error lines_to_bytecode(struct command_string_processing* CSP)
 
         fprintf(AsmLog, "line = %s\n", line);
 
-        #define ASM_COMMAND(name, id, size, ...)                                    \
-        if (strncmp(name, line, size) == 0)                                         \
-        {                                                                           \
-            int command_id = id;                                                    \
-            if (id & (1 << 7))                                                      \
-            {                                                                       \
-                Argument* arg = get_arg(line + size, AsmLog);                       \
-                ERROR_PUT(!arg, CSP->errors, ASM_ERROR_CALLOC, ASM_ERROR_CALLOC);   \
-                                                                                    \
-                assembler_error error = arg->error;                                 \
-                command_id = (command_id & (Num - 1))  | arg->format;               \
-                asm_code[ip++]   = command_id;                                      \
-                asm_code[ip++]   = arg->val;                                        \
-                fprintf(AsmLog, "command = %d\narg = %d\n", command_id, arg->val);  \
-                free(arg);                                                          \
-                                                                                    \
-                ERROR_PUT(error, CSP->errors, error, error);                        \
-            }                                                                       \
-            else                                                                    \
-            {                                                                       \
-                fprintf(AsmLog, "command = %d\n", command_id);                      \
-                asm_code[ip++]   = command_id;                                      \
-            }                                                                       \
+        #define ASM_COMMAND(name, id, size, ...)                                                                \
+        if (strncmp(name, line, size) == 0)                                                                     \
+        {                                                                                                       \
+            int command_id = id;                                                                                \
+            if (id & (1 << 7))                                                                                  \
+            {                                                                                                   \
+                Argument* arg = get_arg(line + size, AsmLog);                                                   \
+                ERROR_PUT(!arg, CSP->errors, ASM_ERROR_CALLOC, ASM_ERROR_CALLOC);                               \
+                                                                                                                \
+                assembler_error error = arg->error;                                                             \
+                command_id = (command_id & (Num - 1))  | arg->format;                                           \
+                asm_code[ip++]   = command_id;                                                                  \
+                asm_code[ip++]   = arg->val;                                                                    \
+                fprintf(AsmLog, "command = %d\narg = %d\ncommand_len = %d\n\n", command_id, arg->val, size);    \
+                free(arg);                                                                                      \
+                                                                                                                \
+                ERROR_PUT(error, CSP->errors, error, error);                                                    \
+            }                                                                                                   \
+            else                                                                                                \
+            {                                                                                                   \
+                fprintf(AsmLog, "command = %d\n\n", command_id);                                                  \
+                asm_code[ip++]   = command_id;                                                                  \
+            }                                                                                                   \
         }else                                                                           
 
         #include "../include/Command_Description.txt"
@@ -102,7 +101,7 @@ assembler_error lines_to_bytecode(struct command_string_processing* CSP)
             CSP->byte_code->elemcount   = new_size;
             asm_code = new_arr; 
         }
-        else if((isspace(*line)) || (!(*line))){}
+        else if((isspace(*line)) || (!(*line)) || (*line == ';')){}
         else 
         {
             printf("line is %s(%d)\n", line, *line);
@@ -167,7 +166,7 @@ void CSP_dtor(command_string_processing* CSP)
     }
 
     text_info_dtor(CSP->byte_code);
-    fclose(CSP->assembler_log);
+    if (CSP->assembler_log) fclose(CSP->assembler_log);
 
     free(CSP);
 }

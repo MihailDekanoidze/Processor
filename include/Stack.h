@@ -108,7 +108,7 @@ elem_t      StackTop(const struct Stack* st);
 size_t      StackSize(const struct Stack* st);
 void        StackDtor(struct Stack* st);
 StackError  StackChangeCapacity(Stack* st, const size_t);
-int         StackErrorCheck(struct Stack* st);
+size_t      StackErrorCheck(struct Stack* st);
 size_t      CheckPoisonSegment(const Stack* st);
 size_t      CheckUnpoisonedSegment(const Stack* st);
 void        StackFilling(void* data, const void* poison,  const size_t capacity, const size_t elem_size);

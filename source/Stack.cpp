@@ -259,7 +259,7 @@ void StackClear(struct Stack* st)
     LOG_FUNCTION_END
 }
 
-int StackErrorCheck(struct Stack* st)
+size_t StackErrorCheck(struct Stack* st)
 {
     LOG_FUNCTION_BEGIN
 

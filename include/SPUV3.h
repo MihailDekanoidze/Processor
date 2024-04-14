@@ -13,7 +13,7 @@
 #define SPU_LOG_FUNCTION_BEGIN fprintf(SPU->SPU_log, "Function %s begin\n", __PRETTY_FUNCTION__);
 #define SPU_LOG_FUNCTION_END   fprintf(SPU->SPU_log, "Function %s end\n",   __PRETTY_FUNCTION__);
 
-const int base_capacity = 5; 
+const int base_capacity = 25; 
 typedef int elem_t;
 
 //binary file 
@@ -60,7 +60,6 @@ enum ERROR_SPU
 ERROR_SPU       SPU_ctor(processor* SPU, text_info* byte_code);
 void            SPU_dtor(processor*);
 ERROR_SPU       byte_code_execute(processor*);
-void            SPU_regs_print(const processor* SPU);
-void            SPU_info_printf(const processor* SPU);
-void            SPU_ram_print(const processor* SPU, const size_t memory_count);
+void            SPU_regs_print(processor* SPU, int* byte_code, size_t ip);
+
 #endif //SPU_V3_H
