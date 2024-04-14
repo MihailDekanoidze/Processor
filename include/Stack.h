@@ -21,7 +21,7 @@ const static  unsigned int DECREASE_COEF           = 5;
 
 #define LOG_FUNCTION_BEGIN if (st->stack_log != NULL) fprintf(st->stack_log, "Function %s in line %d in file %s begin\n", __PRETTY_FUNCTION__, __LINE__, __FILE__);
 #define LOG_FUNCTION_END   if (st->stack_log != NULL) fprintf(st->stack_log, "Function %s in line %d in file %s end\n",   __PRETTY_FUNCTION__, __LINE__, __FILE__);
-#define CANARY_ON
+#define CANARY_OFF
 
 #ifdef CANARY_CHECK_ON
     #define CANARY_PRINT(...) __VA_ARGS__
@@ -47,7 +47,7 @@ const static  unsigned int DECREASE_COEF           = 5;
                                       {                         \
                                         printf("");             \
                                         return st.error;        \
-                                      }                         \ 
+                                      }                         \
                               } while (0)
                               
 
@@ -56,7 +56,7 @@ const static  unsigned int DECREASE_COEF           = 5;
                               {                                 \
                                   if (Canary  != CANARY)        \
                                   {                             \
-                                      st->error |= code_error;  \ 
+                                      st->error |= code_error;  \
                                       return st->error;         \
                                   }                             \
                               } while(0)                                     
@@ -98,35 +98,21 @@ struct Stack
 };
 
 
-StackError StackPrint(struct Stack *st);
-
-StackError StackCtor(Stack* st, const size_t capacity);
-
-StackError StackPush(struct Stack* st, const elem_t elem);
-
-StackError StackPop(struct Stack* st, elem_t* value);
-
-void StackClear(struct Stack* st);
-
-int StackIsEmpty(const struct Stack* st);
-
-elem_t StackTop(const struct Stack* st);
-
-size_t StackSize(const struct Stack* st);
-
-void StackDtor(struct Stack* st);
-
-StackError StackChangeCapacity(Stack* st, const size_t);
-
-int StackErrorCheck(struct Stack* st);
-
-size_t CheckPoisonSegment(const Stack* st);
-
-size_t CheckUnpoisonedSegment(const Stack* st);
-
-void StackFilling(void* data, const void* poison,  const size_t capacity, const size_t elem_size);
-
-size_t CanaryCheck(Stack* st);
+StackError  StackPrint(struct Stack *st);
+StackError  StackCtor(Stack* st, const size_t capacity);
+StackError  StackPush(struct Stack* st, const elem_t elem);
+StackError  StackPop(struct Stack* st, elem_t* value);
+void        StackClear(struct Stack* st);
+int         StackIsEmpty(const struct Stack* st);
+elem_t      StackTop(const struct Stack* st);
+size_t      StackSize(const struct Stack* st);
+void        StackDtor(struct Stack* st);
+StackError  StackChangeCapacity(Stack* st, const size_t);
+int         StackErrorCheck(struct Stack* st);
+size_t      CheckPoisonSegment(const Stack* st);
+size_t      CheckUnpoisonedSegment(const Stack* st);
+void        StackFilling(void* data, const void* poison,  const size_t capacity, const size_t elem_size);
+size_t      CanaryCheck(Stack* st);
 
 
 

@@ -21,7 +21,7 @@ int main(int argc, char** argv)
     if (!disasm) error = NULL_PTR;
     ERROR_CHECK(error, "Main_info disasm create failed: error code ", DISASM_PROGRAMM_FINISH);
     disasm->errors = byte_code_disasm(disasm);
-    ERROR_CHECK(disasm->errors, "Main_info disasm create failed: error code ", DISASM_PROGRAMM_FINISH);
+    ERROR_CHECK(disasm->errors, "Dissasembling failed: error code ", DISASM_PROGRAMM_FINISH);
 
     error = byte_code_to_file(argv[2], disasm->disasm_code, sizeof(char));
     ERROR_CHECK(error, "File writing failed: error code ", DISASM_PROGRAMM_FINISH);

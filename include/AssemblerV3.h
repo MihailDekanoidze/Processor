@@ -4,7 +4,6 @@
 #include "CommonIncludes.h"
 #include "../include/Registers.h"
 
-
 #define LOG_FUNCTION_BEGIN fprintf(CSP->assembler_log, "Function %s begin\n", __PRETTY_FUNCTION__);
 #define LOG_FUNCTION_END   fprintf(CSP->assembler_log, "Function %s end\n",   __PRETTY_FUNCTION__);
 #define CHECK_ADDRESS_NULL(address, error) if (address == NULL){CSP->errors = error; return error;}

@@ -14,7 +14,7 @@ const int Mem = (1 << 10);
         if (condition)                                                                  \
         {                                                                               \
             printf("error in line %d, in fuction %s\n", __LINE__, __PRETTY_FUNCTION__); \
-            dest = error;                                                             \
+            dest = error;                                                               \
             return ret_val;                                                             \
         }while(0)                                           
 

@@ -1,141 +1,415 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include "../include/Stack.h"
 
 
-void StackPrint(struct Stack *st)
+
+
+const char* stack_errors_message[] = 
 {
-    printf("\n\nInformation of stack\n");
-    printf("Capacity of stack = %zu\n", st->capacity);
-    printf("Size of stack = %zu\n", st->size);
-    printf("Address of struct stack = %p\n", st);
-    printf("Address of stack data = %p\n", st->ptr);
 
-    switch (st->error)
+"No errors\n",
+"Out of memory for calloc\n",
+"Out of memory for realloc\n",
+"The stack is empty\n",
+"An error occured while clearing the stack",
+"Attempt to go to null adress\n",
+"Data was located in poisoned segment\n",
+"Damaged struct left canary\n",
+"Damaged struct right canary\n",
+"Damaged data left canary\n",
+"Damaged data right canary\n",
+"Poison in data\n"
+
+};
+
+
+StackError StackPrint(struct Stack *st)
+{
+    LOG_FUNCTION_BEGIN
+
+    FILE* log = st->stack_log;
+
+    if (st == NULL)
     {
-        case OUT_OF_MEMORY:
-        {
-                printf("Out of memory\n");
-                break;
-        }
-        case EMPTY_STACK:
-        {
-                printf("Attempt to delete element in empty stack\n");
-                break;
-        }
-        case NO_ERRORS:
-        {
-            printf("No errors\n");
-            break;
-        }
-        default:
-        {
-                printf("Unexpected error\n");
-                break;
-        }
-    }
-    if (st->size == 0)
-        printf("Empty stack");
-    for (size_t i = 0; i < st->size; i++)
-    {
-        printf("st[%zu] = %d\n", i, st->ptr[i]);
+        st->error |= STACK_NULL_ADDRESS;
+        return STACK_NULL_ADDRESS;
     }
 
-    printf("\n\n");
+    fprintf(log, "\n\nInformation of stack\n");                      
+    fprintf(log, "Capacity of stack = %zu\n", st->capacity);          
+    fprintf(log, "Size of stack = %zu\n", st->size);
+    fprintf(log, "Address of struct stack = %p\n", st);
+    fprintf(log, "Address of stack data = %p\n", st->data);
+    fprintf(log, "Stack errors = %zu\n", st->error);
+
+    if (st->size == 0) fprintf(log, "Empty stack\n");
+
+#ifdef CANARY_ON
+    fprintf(log, "\nLEFT_CANARY  = ");                                                         
+    for (size_t i = 0; i < sizeof(canary); i++)
+    {   
+        char byte = ((char*) st->data - sizeof(canary))[i];
+        fprintf(log, " %x ", byte & 0xff);
+    }
+    fprintf(log, "\n");
+    fprintf(log, "LEFT_CANARY = %lu\n", (canary*)((char*)(st->data) - sizeof(canary)));
+    fprintf(log, "RIGHT_CANARY = %lu\n", (canary*)(st->data + st->capacity));
+    fprintf(log, "stack has %d byte(s) size\n", (st->capacity * sizeof(elem_t)) + 2 * sizeof(CANARY));
+
+    for (size_t i = 0; i < (st->capacity * sizeof(elem_t)) + 2 * sizeof(CANARY); i++)
+    {
+        char byte = (((char*)(st->data)) - sizeof(CANARY))[i];
+        
+        fprintf(log, "byte[%zu] = %x\n", i, byte & 0xff);
+    }
+    fprintf(log, "capacity + 2 * sizeof(CANARY) / sizeof(elem_t) = %zu\n", (st->capacity * sizeof(elem_t)) + 2 * sizeof(CANARY));
+#endif
+
+    fprintf(log, "\n\n<<< SIZE >>>\n\n");
+
+
+    for (size_t i = 0; i < st->size; i++)               
+    {
+        fprintf(log, "st[%zu] = %d\n", i, st->data[i]);
+    }
+
+    fprintf(log, "\n\n<<<FULL CAPACITY>>>\n\n");
+
+    for (size_t i = 0; i < st->capacity; i++)               
+    {
+        if (st->data[i] == POISON) fprintf(log, "\tstack[%zu] = POISON\n", i);
+        else {fprintf(log, "\tstack[%zu] = %d\n", i, st->data[i]);}
+    }
+
+    fprintf(st->stack_log, "\n\n");
+
+    LOG_FUNCTION_END
+
+    return STACK_NO_ERRORS;
 }
 
-void StackCtor(struct Stack* st, const size_t capacity) // return enum / -1
+
+
+StackError StackCtor(Stack* st, const size_t capacity)                               
 {
-    st->ptr = (elem_t*) calloc(capacity, sizeof (st->ptr[0])); // calloc != NULL
-    st->size = 0;
+    LOG_FUNCTION_BEGIN
+
     st->capacity = capacity;
+    st->size = 0;
+
+#ifdef CANARY_ON
+    
+    st->canary_left = CANARY;
+    st->canary_right = CANARY;
+
+    char* create_address = (char*)calloc(capacity * sizeof(elem_t)+ 2 * sizeof(CANARY), sizeof(char));
+
+    *((unsigned long*)create_address) = CANARY;
+    *((unsigned long*)(create_address + capacity * sizeof(elem_t) + sizeof(CANARY))) = CANARY;
+
+    st->data = (elem_t*) (create_address + sizeof(CANARY));
+
+    if (!create_address)
+    {
+        st->error = STACK_OUT_OF_MEMORY_CALLOC;
+        return STACK_OUT_OF_MEMORY_CALLOC;
+    }
+#else // CANARY_OFF
+    char* create_address = (char*) calloc(capacity * sizeof(elem_t), sizeof(char)); 
+
+    if (!create_address)
+    {
+        st->error = STACK_OUT_OF_MEMORY_CALLOC;
+        return STACK_OUT_OF_MEMORY_CALLOC;
+    }
+    
+    st->data = (elem_t*) (create_address);
+#endif
+
+    StackFilling(st->data, &(POISON), capacity, sizeof(elem_t));
+
+    LOG_FUNCTION_END
+
+    return STACK_NO_ERRORS;
 }
 
-void StackPush(struct Stack* st, const elem_t elem)
+StackError StackPush(struct Stack* st, const elem_t elem)
 {
+    LOG_FUNCTION_BEGIN
+
+    fprintf(st->stack_log, "Command_PUSH (%d)\n", elem);
+
     if (st->capacity == st->size)
     {
-        elem_t* tempt_address = (elem_t*) realloc(st->ptr, st->capacity * 2 * sizeof(elem_t)); //
-        if (tempt_address == NULL)
-        {
-            st->error = OUT_OF_MEMORY;
-
-            return;
-        }
-        st->ptr = tempt_address;
-        st->capacity *= 2;
+        if (StackChangeCapacity(st, INCREASE_COEF)) return STACK_OUT_OF_MEMORY_REALLOC;
     }
 
-    st->ptr[st->size++] = elem;
+    st->data[st->size++] = elem;
+
+    LOG_FUNCTION_END
+
+    return STACK_NO_ERRORS;
 }
 
-void StackPop(struct Stack* st, elem_t* value)
+StackError StackPop(struct Stack* st, elem_t* value)
 {
-    //printf("In StackPop!\n");
+    LOG_FUNCTION_BEGIN
+
     if (st->size == 0)
     {
-        st->error = EMPTY_STACK;
-        return;
+        st->error |= EMPTY_STACK;      
+        return EMPTY_STACK;
     }
-    //printf("st->size = %zu\n", st->size);
-    st->ptr[st->size] = 0;
 
-    *value = st->ptr[--st->size];
-
-
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    if (st->size + 1 < st->capacity / 2 && st->size > CAPACITY_REDUCE_LEVEL)
+    if (value != NULL)
     {
-        elem_t* temp_address = (elem_t*)realloc(st->ptr, st->capacity / 2 * sizeof(elem_t));
-        if (temp_address == NULL)
-        {
-            st->error = OUT_OF_MEMORY;
+        *value = st->data[--st->size];
+        st->data[st->size] = POISON;
 
-            return;
+        if (st->size < st->capacity / 2 && st->size > DEFAULT_CAPACITY)                                                            
+        {
+            if (StackChangeCapacity(st, DECREASE_COEF)) 
+            {
+                st->error |= STACK_OUT_OF_MEMORY_REALLOC;
+                return STACK_OUT_OF_MEMORY_REALLOC;
+            }
         }
-        st->ptr = temp_address;
-        st->capacity /= 2;
+
+        fprintf(st->stack_log, "Command_POP(%d)\n", *value);
     }
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    LOG_FUNCTION_END
+
+    return STACK_NO_ERRORS;
+
 }
+
+
 
 void StackDtor(struct Stack* st)
 {
+    if(!st) return;   
+    LOG_FUNCTION_BEGIN
+
     StackClear(st);
+
+#ifdef CANARY_ON
+    free((char*)(st->data) - sizeof(CANARY));
+#else //CANARY_OFF
+    free((char*)(st->data));
+#endif
+
+    st->data = NULL;
+
     st->capacity = 0;
-    st->error = NO_ERRORS;
-    free(st->ptr);
+    st->error |= STACK_NO_ERRORS;
     st->size = 0;
 
+    //printf("Meow!\n");
+
+
+    LOG_FUNCTION_END
 }
 
-size_t StackSize(struct Stack* st)
+size_t StackSize(const struct Stack* st)
 {
+    LOG_FUNCTION_BEGIN
     return st->size;
+    LOG_FUNCTION_END
 }
 
-elem_t StackGet(struct Stack* st)
+elem_t StackTop(const struct Stack* st)     
 {
+    LOG_FUNCTION_BEGIN
+
     if (!StackIsEmpty(st))
-        return st->ptr[st->size -1];
+    {
+        fprintf(st->stack_log, "Command_TOP(%d)\n", st->data[st->size-1]);    
+        return st->data[st->size - 1];
+    }
     else
-        return 0;
+    {
+        fprintf(st->stack_log, "Command_TOP(POISON)\n");    
+        return POISON;
+    }
+
+    LOG_FUNCTION_END           
 }
 
-int StackIsEmpty(struct Stack* st)
+int StackIsEmpty(const struct Stack* st)
 {
-    if (st->size == 0)
-        return 0;
-    else
-        return 1;
+    LOG_FUNCTION_BEGIN
+ 
+    return (st->size == 0);
+
+    LOG_FUNCTION_END
 }
 
-void StackClear(struct Stack* st)
+void StackClear(struct Stack* st)     
 {
+    LOG_FUNCTION_BEGIN
+
+    StackFilling(st->data, &POISON, st->capacity, sizeof(elem_t));
+
+    st->size = 0; 
+
+    LOG_FUNCTION_END
+}
+
+int StackErrorCheck(struct Stack* st)
+{
+    LOG_FUNCTION_BEGIN
+
+    fprintf(st->stack_log, "Stack errors = %zu\n", st->error);
+
+    size_t no_poisoned = CheckPoisonSegment(st);
+
+    if (no_poisoned != UNBROKEN_POISON_SEGMENT)
+    {
+        st->error |= STACK_DATA_IN_POISON_SEGMENT;
+        fprintf(st->stack_log, "no_poisoned[%zu] = %d\n", no_poisoned, st->data[no_poisoned]);
+    }
+
+    size_t poisoned_elem = CheckUnpoisonedSegment(st);
+
+    if (poisoned_elem != st->size)
+    {
+        st->error |= STACK_POISON_IN_DATA_SEGMENT;
+        fprintf(st->stack_log, "poisoned[%zu] = %d\n", poisoned_elem, st->data[poisoned_elem]);
+    }
+
+#ifdef CANARY_ON
+    CanaryCheck(st);
+#endif
+
+    fprintf(st->stack_log, "Error = %zu \n", st->error);
+    
+    if (st->error == STACK_NO_ERRORS) {return STACK_NO_ERRORS; LOG_FUNCTION_END}
+
+    for (size_t i = 0; i < COUNT_ERRORS; i++)         
+    {
+        if (st->error & (1 << i)) fprintf(st->stack_log, "%s", stack_errors_message[i + 1]);    
+    }
+
+    
+    LOG_FUNCTION_END
+    
+    return st->error;
+}
+
+StackError StackChangeCapacity(Stack* st, const size_t coef_capacity)
+{
+    LOG_FUNCTION_BEGIN
+    
+
+#ifdef CANARY_ON
+    size_t new_capacity = (st->capacity * coef_capacity * sizeof(elem_t) / 10UL + 2 * sizeof(CANARY));
+    fprintf(st->stack_log, "new_capacity = %zu(bytes)\n", new_capacity);
+    char* data_address = (char*) realloc((char*)(st->data) - sizeof(CANARY), new_capacity); 
+#else //CANARY_OFF
+    size_t new_capacity = (st->capacity * coef_capacity * sizeof(elem_t) / 10UL);    
+    char* data_address = (char*) realloc((char*)(st->data), new_capacity);
+#endif
+
+    if (data_address == NULL)
+    {
+        st->error |= STACK_OUT_OF_MEMORY_REALLOC;
+        return STACK_OUT_OF_MEMORY_REALLOC;
+    }
+
+    st->capacity = st->capacity * coef_capacity / 10UL;
+
+    fprintf(st->stack_log,"capacity =%zu\n", st->capacity);
+
+#ifdef CANARY_ON
+    *((unsigned long long*)data_address) = CANARY;
+    *((unsigned long long*)(data_address + sizeof(CANARY) + st->capacity * sizeof(elem_t))) = CANARY;
+    st->data = (elem_t*)(data_address + sizeof(CANARY));
+#else //CANARY_OFF
+    st->data = (elem_t*)(data_address);
+#endif
+
+    StackFilling(st->data + st->size, (const void*)&POISON, st->capacity - st->size, sizeof(elem_t));
+
+    LOG_FUNCTION_END
+    
+    return STACK_NO_ERRORS;
+}
+
+
+size_t CheckPoisonSegment(const Stack* st)
+{
+    LOG_FUNCTION_BEGIN    
+
+    size_t no_poisoned_elem = UNBROKEN_POISON_SEGMENT;
+
+    
+    for (size_t i = st->size; i < st->capacity; i++)
+    {
+        if (st->data[i] != POISON)
+        {
+            no_poisoned_elem = i;
+            break;
+        }
+    }
+
+    LOG_FUNCTION_END
+
+    return no_poisoned_elem;
+}
+
+
+void StackFilling(void* data, const void* poison, const size_t elem_count, const size_t elem_size)   
+{
+    for (size_t i = 0; i < elem_count; i++)
+    {
+        memcpy((char*)data + i * elem_size, poison, elem_size); 
+    }
+}
+
+size_t CheckUnpoisonedSegment(const Stack* st)
+{
+    LOG_FUNCTION_BEGIN
+
+    size_t poisoned_elem = st->size;
+
     for (size_t i = 0; i < st->size; i++)
     {
-        st->ptr[i] = 0;
+        if (st->data[i] == POISON)
+        {
+            poisoned_elem = i;
+            break;
+        }
     }
-    st->size = 0;
+
+    LOG_FUNCTION_END
+
+    return poisoned_elem;
 }
+
+       
+#ifdef CANARY_ON
+#define size_t CanaryCheck(Stack* st)                                                           \
+        {                                                                                       \
+            LOG_FUNCTION_BEGIN                                                                  \
+                                                                                                \
+            CANARY_ERROR(st->canary_left,  STACK_STRUCT_LEFT_CANARY_DAMAGED);                   \
+            CANARY_ERROR(st->canary_right, STACK_STRUCT_RIGHT_CANARY_DAMAGED);                  \
+                                                                                                \
+            char* left_canary  = (char*)(st->data) - sizeof(CANARY);                            \
+            char* right_canary = (char*)(st->data) + sizeof(elem_t) * st->capacity;             \
+                                                                                                \
+            fprintf(st->stack_log, "left_canary = %lu\n",   *((unsigned long*) left_canary  )); \
+            fprintf(st->stack_log, "right_canary  = %lu\n", *((unsigned long*) right_canary )); \
+                                                                                                \
+            CANARY_ERROR(*((unsigned long*) left_canary),   STACK_DATA_LEFT_CANARY_DAMAGED);    \
+            CANARY_ERROR(*((unsigned long*) right_canary),  STACK_DATA_LEFT_CANARY_DAMAGED);    \
+                                                                                                \
+            LOG_FUNCTION_END                                                                    \
+                                                                                                \
+            return STACK_NO_ERRORS;                                                             \
+        }
+#endif

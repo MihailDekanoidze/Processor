@@ -58,7 +58,7 @@ disassembler_error byte_code_disasm(main_info* disasm)
 
         switch (byte_code[ip])
         {
-            #define ASM_COMMAND(name, id, size, dis)                                         \
+            #define ASM_COMMAND(name, id, size, dis, ...)                                         \
             case id:                                                                    \
             {                                                                           \
                 sprintf(disasm_code, "%s", dis);                                       \

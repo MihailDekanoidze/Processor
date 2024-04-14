@@ -52,7 +52,7 @@ assembler_error lines_to_bytecode(struct command_string_processing* CSP)
 
         fprintf(AsmLog, "line = %s\n", line);
 
-        #define ASM_COMMAND(name, id, size, dis)                                         \
+        #define ASM_COMMAND(name, id, size, ...)                                    \
         if (strncmp(name, line, size) == 0)                                         \
         {                                                                           \
             int command_id = id;                                                    \
@@ -123,7 +123,7 @@ Argument* get_arg(const char* source, FILE* AsmLog)
     arg->error = ASM_NO_ERRORS;
 
     fprintf(AsmLog, "arg  = %s\n", source);
-    if (isdigit(*source))
+    if (isdigit(*source) || (*source == '-'))
     {
         arg->format = Num;
         int iscorrect_num = sscanf(source, "%d", &arg->val);

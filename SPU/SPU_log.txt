@@ -1,0 +1,10 @@
+Function ERROR_SPU byte_code_execute(processor*) begin
+byte_code[0] = 385
+byte_code[2] = 385
+byte_code[4] = 385
+byte_code[6] = 385
+byte_code[8] = 385
+byte_code[10] = 385
+byte_code[12] = 385
+byte_code[14] = 23
+byte_code[15] = 7

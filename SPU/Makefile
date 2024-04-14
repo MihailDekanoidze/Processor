@@ -19,24 +19,29 @@ float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,$\
 object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,$\
 undefined,unreachable,vla-bound,vptr
 
-all: SPU 
+SOURCES := $(wildcard *.cpp)
+SOURCES += $(wildcard ../source/*.cpp)
+OBJ_DIR = SPU_apps
 
-SPU: clean Stack.o InputText.o main.o
+VPATH := ./:../source
 
-	g++ Stack.o  InputText.o main.o -o SPUV3 $(FLAGS)
+OBJECTS := $(addprefix $(OBJ_DIR)/, $(notdir $(patsubst %.cpp,%.o,$(SOURCES))))
 
-Stack.o:
+EXECUTABLE = SPU
 
-	g++ ../source/Stack.cpp -c -o Stack.o $(FLAGS)
+.PHONY: all 
+all: $(EXECUTABLE) 
 
-InputText.o:
+$(EXECUTABLE): $(OBJECTS)
+	@g++ $(OBJECTS) -o $(EXECUTABLE) $(FLAGS)
 
-		g++ ../source/InputText.cpp -c -o InputText.o $(FLAGS) 
+$(OBJ_DIR)/%.o: %.cpp
+	@g++ $^ -c -o $@ $(FLAGS)
 
-main.o:
+.PHONY: clean
+clean: 
+	rm -rf $(OBJ_DIR)/*.o 
+	rm $(EXECUTABLE)
 
-	g++ main.cpp -c -o main.o $(FLAGS)
-
-clean:
-
-	rm -rf *.o SPU
+run:
+	./$(EXECUTABLE)	../Output/ByteCode.txt
