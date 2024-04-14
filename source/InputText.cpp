@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <malloc.h>
-#include "../include/InputText.h"
 #include "../include/CommonIncludes.h"
 
 
@@ -12,7 +11,11 @@ text_info* text_info_ctor(void)
 
 void text_info_dtor(text_info* text)
 {
-    if (!text)  return;
+    if (!text)  
+    {
+        printf("Null ptr was given by %s\n", __PRETTY_FUNCTION__);
+        return;
+    }
     
     free(text->buffer);
     text->elemcount = 0;
@@ -40,6 +43,7 @@ Errors input_text(FILE* file, size_t elem_size, text_info* text)
     rewind(file);
 
     char* buffer = (char*) calloc(size + 1, elem_size);
+    if (!buffer) return CALLOC;
 
     size_t elemcount = 0;
     elemcount = fread(buffer, elem_size, size, file);

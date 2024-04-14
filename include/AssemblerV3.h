@@ -2,7 +2,6 @@
 #define ASSEMBLER_H
 
 #include "CommonIncludes.h"
-#include "InputText.h"
 #include "../include/Registers.h"
 
 
@@ -14,26 +13,14 @@
 
 
 
-#define PROGRAMM_FINISH                 \
-        text_info_dtor(chars_buffer);   \
-        text_info_dtor(command_lines);  \
-        CSP_dtor(CSP)               
+#define ASM_PROGRAMM_FINISH                 \
+        text_info_dtor(chars_buffer);       \
+        text_info_dtor(command_lines);      \
+        CSP_dtor(CSP);               
 
 
 
-#define ERROR_CHECK(error, messege)         \
-if (error)                                  \
-{                                           \
-    printf(messege);                        \
-    int curr_error = error;                 \
-    printf("%d\n", error);                  \
-    PROGRAMM_FINISH;                        \
-    return curr_error;                      \
-}
 
-const int Num = (1 << 8);
-const int Reg = (1 << 9);
-const int Mem = (1 << 10);
 
 enum assembler_error
 {
@@ -69,9 +56,7 @@ struct command_string_processing
 
 
 
-Errors                      file_to_buffer(const char* file_name, text_info* buffer);
 assembler_error             lines_to_bytecode(struct command_string_processing* CSP);
-Errors                      byte_code_to_file(const char* file_name, text_info* byte_code);
 Argument*                   get_arg(const char* source, FILE* log);
 command_string_processing*  CSP_ctor(text_info* command_lines);
 void                        CSP_dtor(command_string_processing* CSP);
