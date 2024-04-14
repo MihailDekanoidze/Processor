@@ -1,4 +1,4 @@
-# How to use my processor to execute your prorgramm
+# How to use my processor to execute your programm
 ## 0)Grammar
 You can read a description command in file `Command_Description.txt` in folder `/Input`.
 Example 
@@ -19,7 +19,7 @@ ASM_COMMAND("ADD", 2, 3, "ADD",
   )
 ```
 ## 1)Your need to write a programm 
-In folder '/Input'  you must create file `Commands.txt` and write in this file your prorgamm.
+In folder '/Input'  you must create file `Commands.txt` and write in this file your programm.
 
 ### You also can read examlpe programm:
 a)`Factorial_Loop.txt`: use a simple circle to calculate factorial of the number you will enter.
