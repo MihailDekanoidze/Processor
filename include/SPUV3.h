@@ -61,5 +61,7 @@ ERROR_SPU       SPU_ctor(processor* SPU, text_info* byte_code);
 void            SPU_dtor(processor*);
 ERROR_SPU       byte_code_execute(processor*);
 void            SPU_regs_print(processor* SPU, int* byte_code, size_t ip);
+int             double_to_dec(double number);
+double          dec_to_double(int number);
 
 #endif //SPU_V3_H

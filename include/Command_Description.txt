@@ -1,4 +1,4 @@
-ASM_COMMAND("PUSH", ((1 << 7) + (1 << 8)  + 1), 4, "PUSH",
+ASM_COMMAND("PUSH", ((1 << 7) + (1 << 8) + (1 << 11) + 1), 4, "PUSH",
  
     elem_t arg = byte_code[++ip];
     StackPush(data_stk, arg);
@@ -43,7 +43,7 @@ ASM_COMMAND("MUL", 4, 3, "MUL",
 
     ERROR_PUT(data_stk->error, SPU->error, SPU_DATA_STACK_ERROR, SPU_DATA_STACK_ERROR);
 
-    StackPush(data_stk, arg1 * arg2);
+    StackPush(data_stk, double_to_dec(dec_to_double(arg1) * dec_to_double(arg2)));
     ip++;
     break;
   ) 
@@ -57,7 +57,7 @@ ASM_COMMAND("DIV", 5, 3, "DIV",
 
     ERROR_PUT(data_stk->error, SPU->error, SPU_DATA_STACK_ERROR, SPU_DATA_STACK_ERROR);
 
-    StackPush(data_stk, arg2 / arg1);
+    StackPush(data_stk, double_to_dec(dec_to_double(arg2) / dec_to_double(arg1)));
     ip++;
     break;
   ) 
@@ -68,7 +68,7 @@ ASM_COMMAND("OUT", 6, 3, "OUT",
     StackPop(data_stk, &arg);
     ERROR_PUT(data_stk->error, SPU->error, SPU_DATA_STACK_ERROR, SPU_DATA_STACK_ERROR);
 
-    printf("%d\n", arg);
+    printf("%lg\n", (double)arg / pow(10, ACCURACY));
     ip++;
     break;
   )
@@ -82,7 +82,7 @@ ASM_COMMAND("IN", 8, 2, "IN",
     int isscaned = scanf("%d", &arg);
     
     if (!isscaned) break;
-    StackPush(data_stk, arg);
+    StackPush(data_stk, arg * (int)pow(10, ACCURACY));
     ip++;
     break;
   )
@@ -91,9 +91,9 @@ ASM_COMMAND("POP", ((1 << 7) + 9), 3, "POP",
     printf("Command POP without any arguments was found\n");
     ERROR_PUT(1, SPU->error, SPU_ERROR_UNKNOWN_COMMAND, SPU_DATA_STACK_ERROR);
   )
-ASM_COMMAND("CALL", ((1 << 7) + (1 << 8)  + 10), 4, "CALL",
+ASM_COMMAND("CALL", ((1 << 7) + (1 << 8) + (1 << 11) + 10), 4, "CALL",
  
-    int arg = byte_code[++ip];
+    int arg = byte_code[++ip] / (int)pow(10, ACCURACY);
     StackPush(return_stk, (int)(++ip));
     ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
 
@@ -119,18 +119,20 @@ ASM_COMMAND("RAM_PUSH", ((1 << 7) + (1 << 10) + 1), 4, "PUSH",
     ip++;
     break;
 )
-ASM_COMMAND("JMP", ((1 << 7) + (1 << 8) + 13), 3, "JMP",
+ASM_COMMAND("JMP", ((1 << 7) + (1 << 8) + (1 << 11) + 13), 3, "JMP",
  
-    int arg = byte_code[++ip];
-    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
+    int arg = byte_code[++ip] / (int)pow(10, ACCURACY);
+    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg * (int)pow(10, ACCURACY) != byte_code[ip]) 
+    || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
 
     ip = (size_t)arg;
     break;
   )
-ASM_COMMAND("JAS", ((1 << 7) + (1 << 8) + 14), 3, "JAS",
+ASM_COMMAND("JAS", ((1 << 7) + (1 << 8) + (1 << 11) + 14), 3, "JAS",
  
-    int arg = byte_code[++ip];
-    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
+    int arg = byte_code[++ip] / (int)pow(10, ACCURACY);
+    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg * (int)pow(10, ACCURACY) != byte_code[ip]) 
+    || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
 
     elem_t arg1 = 0;
     elem_t arg2 = 0;
@@ -144,10 +146,11 @@ ASM_COMMAND("JAS", ((1 << 7) + (1 << 8) + 14), 3, "JAS",
     else (ip++);
     break;
   )
-ASM_COMMAND("JAE", ((1 << 7) + (1 << 8) + 15), 3, "JAE",
+ASM_COMMAND("JAE", ((1 << 7) + (1 << 8) + (1 << 11) + 15), 3, "JAE",
  
-    int arg = byte_code[++ip];
-    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
+    int arg = byte_code[++ip] / (int)pow(10, ACCURACY);
+    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg * (int)pow(10, ACCURACY) != byte_code[ip]) 
+    || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
 
     elem_t arg1 = 0;
     elem_t arg2 = 0;
@@ -157,14 +160,15 @@ ASM_COMMAND("JAE", ((1 << 7) + (1 << 8) + 15), 3, "JAE",
 
     ERROR_PUT(data_stk->error, SPU->error, SPU_DATA_STACK_ERROR, SPU_DATA_STACK_ERROR);
 
-    if (arg2 >= arg1) ip = (size_t)arg;
+    if (arg2 >= arg1) ip = (size_t)arg ;
     else (ip++);
     break;
   )
-ASM_COMMAND("JBS", ((1 << 7) + (1 << 8) + 16), 3, "JBS",
+ASM_COMMAND("JBS", ((1 << 7) + (1 << 8) + (1 << 11) + 16), 3, "JBS",
  
-    int arg = byte_code[++ip];
-    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
+    int arg = byte_code[++ip] / (int)pow(10, ACCURACY);
+    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg * (int)pow(10, ACCURACY) != byte_code[ip]) 
+    || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
 
     elem_t arg1 = 0;
     elem_t arg2 = 0;
@@ -178,10 +182,11 @@ ASM_COMMAND("JBS", ((1 << 7) + (1 << 8) + 16), 3, "JBS",
     else (ip++);
     break;
   )
-ASM_COMMAND("JBE", ((1 << 7) + (1 << 8) + 17), 3, "JBE",
+ASM_COMMAND("JBE", ((1 << 7) + (1 << 8) + (1 << 11) + 17), 3, "JBE",
  
-    int arg = byte_code[++ip];
-    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
+    int arg = byte_code[++ip] / (int)pow(10, ACCURACY);
+    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg * (int)pow(10, ACCURACY) != byte_code[ip]) 
+    || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
 
     elem_t arg1 = 0;
     elem_t arg2 = 0;
@@ -195,10 +200,11 @@ ASM_COMMAND("JBE", ((1 << 7) + (1 << 8) + 17), 3, "JBE",
     else (ip++);
     break;
   )
-ASM_COMMAND("JE", ((1 << 7) + (1 << 8) + 18), 2, "JE",
+ASM_COMMAND("JE", ((1 << 7) + (1 << 8) + (1 << 11) + 18), 2, "JE",
  
-    int arg = byte_code[++ip];
-    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
+    int arg = byte_code[++ip] / (int)pow(10, ACCURACY);
+    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg * (int)pow(10, ACCURACY) != byte_code[ip]) 
+    || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
 
     elem_t arg1 = 0;
     elem_t arg2 = 0;
@@ -212,10 +218,12 @@ ASM_COMMAND("JE", ((1 << 7) + (1 << 8) + 18), 2, "JE",
     else (ip++);
     break;
   )
-ASM_COMMAND("JNE", ((1 << 7) + (1 << 8) + 19), 3, "JNE",
+ASM_COMMAND("JNE", ((1 << 7) + (1 << 8) + (1 << 11) + 19), 3, "JNE",
  
-    int arg = byte_code[++ip];
-    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
+    int arg = byte_code[++ip] / (int)pow(10, ACCURACY);
+
+    ERROR_PUT(((size_t)arg > byte_code_elemcount) || (arg * (int)pow(10, ACCURACY) != byte_code[ip]) 
+    || (arg < 0), SPU->error, SPU_ERROR_JMP_IP, SPU_ERROR_JMP_IP);
 
     elem_t arg1 = 0;
     elem_t arg2 = 0;
@@ -266,10 +274,21 @@ ASM_COMMAND("PUTS", 23, 4, "PUTS",
 
     while (symbol != 0)
     {
-      printf("%c", (char)symbol);
+      printf("%c", (char)(symbol / (int)pow(10, ACCURACY)));
       StackPop(data_stk, &symbol);
       ERROR_PUT(data_stk->error, SPU->error, SPU_DATA_STACK_ERROR, SPU_DATA_STACK_ERROR);
     }
+
+    ip++;
+    break;
+  )
+ASM_COMMAND("SQRT", 24, 4, "SQRT",
+
+    elem_t arg = 0;
+
+    StackPop(data_stk, &arg);
+    ERROR_PUT(data_stk->error, SPU->error, SPU_DATA_STACK_ERROR, SPU_DATA_STACK_ERROR);
+    StackPush(data_stk, (int)pow((double)arg / pow(10, ACCURACY), 0.5) * (int)pow(10, ACCURACY));
 
     ip++;
     break;

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include "../include/SPUV3.h"
 
 #define DEBUG_OFF
@@ -116,4 +117,15 @@ void SPU_regs_print(processor* SPU, int* byte_code, size_t ip)
 
     for (size_t i = 0; i < REGS_COUNT; i++)
     printf("SPU %cX = %d\n", (char)('A' + (char)i), SPU->regs[i]);
+}
+
+
+double dec_to_double(int number)
+{
+    return (double)number / pow(10, ACCURACY);
+}
+
+int double_to_dec(double number)
+{
+    return (int)(number * pow(10, ACCURACY));
 }

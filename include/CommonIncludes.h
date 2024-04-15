@@ -1,13 +1,15 @@
 #ifndef COMMON_INCLUDES_H
 #define COMMON_INCLUDES_H
 
-const int Num = (1 << 8);
-const int Reg = (1 << 9);
-const int Mem = (1 << 10);
+const int Num   = (1 << 8);
+const int Reg   = (1 << 9);
+const int Mem   = (1 << 10);
+const int Frac  = (1 << 11);
 
 #include "InputText.h"
 
 #define INT_LEN  10
+#define ACCURACY 2
 #define EMPTY_COMMAND 0
 
 #define ERROR_PUT(condition, dest, error, ret_val)                                      \

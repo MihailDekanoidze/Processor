@@ -19,7 +19,7 @@ POP AX
 NOPE 75
 PUSH BX
 PUSH 1
-JBE 125
+JBE 125         ;go to result
 
 
 PUSH AX
@@ -37,7 +37,7 @@ JMP 75
 
 NOPE 125
 
-PUSH 0
+PUSH 0      ;result
 PUSH 10
 PUSH 116
 PUSH 108

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <math.h>
 #include "../include/CommonIncludes.h"
 #include "../include/DisassemblerV3.h"
 
@@ -100,7 +100,7 @@ Argument* sprint_arg(char* disasm_code, int* byte_code, int command_id)
 
     if (command_id & Num)
     {
-        sprintf(disasm_code, "%d", *byte_code); 
+        sprintf(disasm_code, "%lg", (double)((*byte_code)) / pow(10, ACCURACY)); 
         arg->len = strlen(disasm_code);
     }
     else if (command_id & Reg)

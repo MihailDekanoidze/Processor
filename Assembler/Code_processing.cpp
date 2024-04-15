@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 #include "../include/CommonIncludes.h"
 #include "../include/InputText.h"
 #include "../include/ProcessingText.h"
@@ -83,6 +84,7 @@ assembler_error lines_to_bytecode(struct command_string_processing* CSP)
         if (strncmp("NOPE", line, 4) == 0)
         {
             Argument* arg = get_arg(line + 4, AsmLog);
+            arg->val /=  (int)pow(10, ACCURACY);
             ERROR_PUT(!arg, CSP->errors, ASM_ERROR_CALLOC, ASM_ERROR_CALLOC);
             size_t new_size = CSP->byte_code->elemcount + (size_t)arg->val;
 
@@ -124,8 +126,10 @@ Argument* get_arg(const char* source, FILE* AsmLog)
     fprintf(AsmLog, "arg  = %s\n", source);
     if (isdigit(*source) || (*source == '-'))
     {
-        arg->format = Num;
-        int iscorrect_num = sscanf(source, "%d", &arg->val);
+        arg->format |= Num + Frac;
+        double val = 0;
+        int iscorrect_num = sscanf(source, "%lg", &val);
+        arg->val = (int)(val * pow(10, ACCURACY));
 
         ERROR_PUT(!iscorrect_num, arg->error, ASM_ERROR_INCORRECT_NUM, arg);
     }
